@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <!-- seo:start -->
+        <title>Acervo Corinthians</title>
+        <meta
+            name="description"
+            content="Acervo histórico de jogos do Sport Club Corinthians Paulista: resultados, temporadas, clássicos, títulos e estatísticas desde 1910."
+        />
+        <!-- seo:end -->
+        <meta name="theme-color" content="#000000" />
+
+        <link rel="icon" type="image/png" href="/assets/img/favicon-48.png" />
+        <link rel="apple-touch-icon" href="/assets/img/logo-256.png" />
+
+        <!-- Fontes: Inter (texto) + Poppins (títulos) -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;700;800;900&display=swap"
+            rel="stylesheet"
+        />
+
+        <!-- Aplica o tema salvo antes de desenhar a página (evita piscar) -->
+        <script src="/assets/js/tema-inicial.js"></script>
+
+        <!-- CSS compilado pelo Tailwind (npm run build:css) -->
+        <link rel="stylesheet" href="/assets/css/app.css" />
+
+        <script type="module" src="/assets/js/main.js"></script>
+    </head>
+
+    <body class="bg-sccp-black text-gray-200 font-sans antialiased min-h-screen flex flex-col lg:pl-16 xl:pl-60">
+        <a
+            href="#app-content"
+            data-skip-link
+            class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60] btn-primary"
+            >Pular para o conteúdo</a
+        >
+
+        <!-- ============================================
+             HEADER — navegação principal fixa no topo
+        ============================================= -->
+        <header class="fixed left-0 w-full top-0 z-50 bg-sccp-black/95 backdrop-blur-md border-b border-gray-800">
+            <div class="px-4 sm:px-6">
+                <div class="flex items-center justify-between h-20 gap-2 sm:gap-6">
+                    <a
+                        href="/"
+                        class="flex items-center gap-2 sm:gap-3 group min-w-0"
+                        aria-label="Acervo Corinthians — página inicial"
+                    >
+                        <img
+                            src="/assets/img/logo-128.png"
+                            srcset="/assets/img/logo-256.png 2x"
+                            data-escudo
+                            alt=""
+                            width="57"
+                            height="57"
+                            class="w-auto h-11 sm:h-[57px] flex-shrink-0 group-hover:scale-105 transition-transform"
+                        />
+                        <img
+                            src="/assets/img/logo-128-claro.png"
+                            srcset="/assets/img/logo-256-claro.png 2x"
+                            data-escudo-claro
+                            alt=""
+                            width="57"
+                            height="57"
+                            class="w-auto h-11 sm:h-[57px] flex-shrink-0 group-hover:scale-105 transition-transform"
+                        />
+                        <span
+                            class="text-base sm:text-xl font-display font-bold text-white tracking-wide whitespace-nowrap group-hover:text-gray-200 transition"
+                        >
+                            Acervo <span class="text-sccp-gold">Corinthians</span>
+                        </span>
+                    </a>
+
+                    <div class="hidden lg:flex items-center gap-5 text-sm font-bold">
+                        <button
+                            type="button"
+                            data-alternar-tema
+                            class="text-gray-400 hover:text-white p-1"
+                            aria-label="Alternar tema"
+                            title="Uniforme 1 / Uniforme 2"
+                        >
+                            <svg
+                                data-icone-tema="escuro"
+                                class="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                                />
+                            </svg>
+                            <svg
+                                data-icone-tema="claro"
+                                class="h-5 w-5 hidden"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                                />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            data-abrir-busca
+                            class="text-gray-400 hover:text-white p-1"
+                            aria-label="Buscar (atalho: /)"
+                            title="Buscar (/)"
+                        >
+                            <svg
+                                class="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"
+                                />
+                            </svg>
+                        </button>
+                        <a
+                            href="/minha-historia"
+                            data-nav-destaque
+                            class="px-3 py-1 rounded-full bg-sccp-gold text-sccp-tinta hover:bg-sccp-goldHover transition whitespace-nowrap"
+                            >Sua história</a
+                        >
+                    </div>
+
+                    <div class="lg:hidden flex items-center flex-shrink-0">
+                        <button
+                            type="button"
+                            data-alternar-tema
+                            class="text-gray-400 hover:text-white p-2 rounded"
+                            aria-label="Alternar tema"
+                            title="Uniforme 1 / Uniforme 2"
+                        >
+                            <svg
+                                data-icone-tema="escuro"
+                                class="h-6 w-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                                />
+                            </svg>
+                            <svg
+                                data-icone-tema="claro"
+                                class="h-6 w-6 hidden"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                                />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            data-abrir-busca
+                            class="text-gray-300 hover:text-white p-2 rounded"
+                            aria-label="Buscar"
+                        >
+                            <svg
+                                class="h-6 w-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"
+                                />
+                            </svg>
+                        </button>
+                        <button
+                            id="mobile-menu-button"
+                            type="button"
+                            class="text-gray-300 hover:text-white p-2 rounded"
+                            aria-controls="mobile-menu"
+                            aria-expanded="false"
+                            aria-label="Abrir menu"
+                        >
+                            <svg
+                                class="h-6 w-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 6h16M4 12h16M4 18h16"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu mobile -->
+            <nav
+                id="mobile-menu"
+                class="lg:hidden border-t border-gray-800 bg-sccp-black"
+                aria-label="Principal (celular)"
+                hidden
+            >
+                <!-- Montado por components/navegacao.js -->
+            </nav>
+        </header>
+
+        <!-- Menu lateral (computador): montado por components/navegacao.js -->
+        <nav
+            id="menu-lateral"
+            class="hidden lg:block fixed left-0 top-20 bottom-0 z-40 w-16 xl:w-60 border-r border-gray-800 bg-sccp-black overflow-y-auto"
+            aria-label="Principal"
+        ></nav>
+
+        <!-- Espaçador para compensar o header fixo -->
+        <div class="h-20" aria-hidden="true"></div>
+
+        <!-- ============================================
+             MAIN — container da SPA (o roteador injeta as views aqui)
+        ============================================= -->
+        <main
+            id="app-content"
+            tabindex="-1"
+            class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full fade-in focus:outline-none"
+        >
+            <div class="flex justify-center items-center h-64" role="status">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-sccp-gold"></div>
+                <span class="sr-only">Carregando…</span>
+            </div>
+            <noscript>
+                <p class="text-center text-gray-400">Ative o JavaScript para navegar pelo acervo.</p>
+            </noscript>
+        </main>
+
+        <!-- ============================================
+             FOOTER
+        ============================================= -->
+        <footer class="bg-black text-gray-400 py-16 relative overflow-hidden border-t border-gray-900 mt-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12">
+                    <div class="space-y-4">
+                        <a
+                            href="/"
+                            class="flex items-center gap-3 group"
+                            aria-label="Acervo Corinthians — página inicial"
+                        >
+                            <img
+                                src="/assets/img/logo-128.png"
+                                srcset="/assets/img/logo-256.png 2x"
+                                data-escudo
+                                alt=""
+                                width="56"
+                                height="56"
+                                class="h-14 w-auto group-hover:scale-105 transition-transform"
+                            />
+                            <img
+                                src="/assets/img/logo-128-claro.png"
+                                srcset="/assets/img/logo-256-claro.png 2x"
+                                data-escudo-claro
+                                alt=""
+                                width="56"
+                                height="56"
+                                class="h-14 w-auto group-hover:scale-105 transition-transform"
+                            />
+                            <span class="font-display font-bold text-xl text-white leading-tight"
+                                >Acervo<br /><span class="text-sccp-gold">Corinthians</span></span
+                            >
+                        </a>
+                        <p class="text-sm text-gray-400 leading-relaxed max-w-xs">
+                            Projeto acadêmico, não oficial. Feito para a torcida mais apaixonada do planeta.
+                        </p>
+                    </div>
+
+                    <div class="pt-2">
+                        <h2 class="text-white font-bold uppercase tracking-widest text-xs mb-6">Acervo</h2>
+                        <ul class="space-y-3 text-sm font-medium">
+                            <li><a href="/jogos" class="hover:text-white transition-colors">Jogos</a></li>
+                            <li><a href="/temporadas" class="hover:text-white transition-colors">Temporadas</a></li>
+                            <li><a href="/adversarios" class="hover:text-white transition-colors">Confrontos</a></li>
+                            <li><a href="/classicos" class="hover:text-white transition-colors">Clássicos</a></li>
+                            <li><a href="/titulos" class="hover:text-white transition-colors">Títulos</a></li>
+                            <li><a href="/hoje" class="hover:text-white transition-colors">Hoje na História</a></li>
+                            <li><a href="/quiz" class="hover:text-white transition-colors">Quiz do Timão</a></li>
+                            <li>
+                                <a href="/fregueses" class="hover:text-white transition-colors"
+                                    >Fregueses &amp; Tabus</a
+                                >
+                            </li>
+                            <li><a href="/estadios" class="hover:text-white transition-colors">Estádios</a></li>
+                            <li><a href="/mapa" class="hover:text-white transition-colors">O Timão pelo mapa</a></li>
+                            <li>
+                                <a href="/minha-historia" class="hover:text-white transition-colors"
+                                    >O Timão na sua vida</a
+                                >
+                            </li>
+                            <li>
+                                <a href="/estatisticas" class="hover:text-white transition-colors">Estatísticas</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="pt-2">
+                        <h2 class="text-white font-bold uppercase tracking-widest text-xs mb-6">Projeto</h2>
+                        <ul class="space-y-3 text-sm font-medium">
+                            <li><a href="/sobre" class="hover:text-white transition-colors">Sobre</a></li>
+                            <li>
+                                <button type="button" data-reportar-erro class="hover:text-white transition-colors">
+                                    Achou um erro? Avise
+                                </button>
+                            </li>
+                            <li>
+                                <a
+                                    href="https://www.todopoderosotimao.com.br"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="hover:text-white transition-colors"
+                                    >Fonte dos dados ↗</a
+                                >
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="pt-2">
+                        <h2 class="text-white font-bold uppercase tracking-widest text-xs mb-6">Clube</h2>
+                        <ul class="space-y-3 text-sm font-medium">
+                            <li>
+                                <a
+                                    href="https://www.corinthians.com.br"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="hover:text-white transition-colors"
+                                    >Site oficial ↗</a
+                                >
+                            </li>
+                        </ul>
+                        <p class="text-xs text-gray-500 mt-8">© <span id="ano-atual"></span> Acervo Corinthians</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tipografia decorativa de fundo -->
+            <div
+                class="absolute bottom-[20px] left-0 w-full flex justify-center items-end pointer-events-none select-none z-0 overflow-hidden"
+                aria-hidden="true"
+            >
+                <span
+                    class="font-display font-black text-[15vw] leading-[0.75] text-gray-900 tracking-tighter whitespace-nowrap"
+                    >CORINTHIANS</span
+                >
+            </div>
+            <div
+                class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10 pointer-events-none"
+                aria-hidden="true"
+            ></div>
+        </footer>
+    </body>
+</html>

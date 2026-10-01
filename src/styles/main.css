@@ -1,0 +1,208 @@
+/* ==============================================
+   ACERVO CORINTHIANS — estilos de origem
+   Compilado para public/assets/css/app.css
+   (npm run build:css  |  npm run watch:css)
+   ============================================== */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ----------------------------------------------
+   BASE
+---------------------------------------------- */
+/* ----------------------------------------------
+   TEMAS — canais RGB usados pelo tailwind.config.js
+   "Uniforme 1" (escuro) é o padrão; "Uniforme 2" (claro) inverte a escala.
+---------------------------------------------- */
+:root {
+    --preto: 0 0 0;
+    --branco: 255 255 255;
+    --cinza-50: 250 250 250;
+    --cinza-100: 245 245 245;
+    --cinza-200: 229 229 229;
+    --cinza-300: 212 212 212;
+    --cinza-400: 163 163 163;
+    --cinza-500: 115 115 115;
+    --cinza-600: 82 82 82;
+    --cinza-700: 64 64 64;
+    --cinza-800: 38 38 38;
+    --cinza-900: 23 23 23;
+    --cinza-950: 10 10 10;
+    --ouro: 212 175 55;
+    --ouro-hover: 227 196 90;
+    /* cores de texto que precisam de mais contraste no tema claro */
+    --texto-ouro: 212 175 55;
+    --texto-verde: 74 222 128;
+    --texto-vermelho: 248 113 113;
+    color-scheme: dark;
+}
+
+[data-tema='claro'] {
+    --preto: 255 255 255;
+    --branco: 10 10 10;
+    --cinza-50: 10 10 10;
+    --cinza-100: 23 23 23;
+    --cinza-200: 38 38 38;
+    --cinza-300: 64 64 64;
+    --cinza-400: 82 82 82;
+    --cinza-500: 115 115 115;
+    --cinza-600: 163 163 163;
+    --cinza-700: 212 212 212;
+    --cinza-800: 229 229 229;
+    --cinza-900: 245 245 245;
+    --cinza-950: 250 250 250;
+    --texto-ouro: 138 109 18;
+    --texto-verde: 21 128 61;
+    --texto-vermelho: 185 28 28;
+    color-scheme: light;
+}
+
+/* Escudo: versão dourada no tema escuro, versão em dourado escuro (arquivo próprio) no tema claro */
+[data-escudo-claro],
+[data-tema='claro'] [data-escudo] {
+    display: none;
+}
+[data-tema='claro'] [data-escudo-claro] {
+    display: block;
+}
+
+/* No tema claro, textos coloridos claros ficariam sem contraste sobre o branco */
+[data-tema='claro'] .text-sccp-gold {
+    color: rgb(var(--texto-ouro));
+}
+[data-tema='claro'] :is(.text-green-400, .text-green-500) {
+    color: rgb(var(--texto-verde));
+}
+[data-tema='claro'] :is(.text-red-400, .text-red-500) {
+    color: rgb(var(--texto-vermelho));
+}
+
+@layer base {
+    html {
+        scroll-padding-top: 6rem; /* compensa o header fixo */
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    :focus-visible {
+        outline: 2px solid rgb(var(--ouro));
+        outline-offset: 2px;
+    }
+
+    [hidden] {
+        display: none !important;
+    }
+}
+
+/* ----------------------------------------------
+   COMPONENTES REUTILIZÁVEIS
+---------------------------------------------- */
+@layer components {
+    .form-control {
+        @apply w-full bg-black border border-gray-700 text-gray-300 rounded-lg p-2 text-sm transition
+            focus:border-sccp-gold focus:outline-none focus:ring-1 focus:ring-sccp-gold;
+    }
+
+    /*
+     * Botões — um só padrão de canto (rounded-lg) e três estilos:
+     *   .btn-primary   ação principal (dourado) — no máximo um por bloco
+     *   .btn-secondary ação comum (contorno neutro)
+     *   .btn-ghost     ação discreta em texto ("Mostrar mais")
+     * Modificador .btn-lg: versão grande e em caixa alta (topo da home).
+     */
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg text-sm font-bold transition
+            disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+
+    .btn-primary {
+        @apply btn bg-sccp-gold text-sccp-tinta py-2.5 px-5 hover:bg-sccp-goldHover;
+    }
+
+    .btn-secondary {
+        @apply btn border border-gray-700 bg-transparent text-gray-200 py-2.5 px-5
+            hover:border-gray-500 hover:text-white hover:bg-white/5;
+    }
+
+    .btn-ghost {
+        @apply btn text-gray-400 py-2 px-3 font-medium hover:text-white hover:bg-white/5;
+    }
+
+    .btn-lg {
+        @apply py-4 px-8 uppercase tracking-widest;
+    }
+
+    /* Compatibilidade: os botões do topo da home usam o padrão grande */
+    .btn-hero-primary {
+        @apply btn-primary btn-lg;
+    }
+
+    .btn-hero-secondary {
+        @apply btn-secondary btn-lg border-white/30 backdrop-blur-sm;
+    }
+
+    /* Link de texto discreto (tabelas e listas): sem cor de destaque, sublinha no hover */
+    .link {
+        @apply transition hover:underline underline-offset-4 decoration-gray-500;
+    }
+
+    .nav-link {
+        @apply border-b-2 py-1 transition-colors hover:text-white;
+    }
+}
+
+/* ----------------------------------------------
+   ANIMAÇÃO DE ENTRADA — reaplicada a cada troca de página
+---------------------------------------------- */
+.fade-in {
+    animation: fadeIn 0.4s ease-in-out both;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ----------------------------------------------
+   SCROLLBAR CUSTOMIZADA
+---------------------------------------------- */
+* {
+    scrollbar-color: rgb(var(--cinza-700)) rgb(var(--cinza-950));
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgb(var(--cinza-950));
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgb(var(--cinza-700));
+    border-radius: 4px;
+    border: 1px solid rgb(var(--cinza-950));
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--ouro));
+}

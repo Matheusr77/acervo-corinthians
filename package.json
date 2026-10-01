@@ -1,0 +1,48 @@
+{
+  "name": "acervo-corinthians",
+  "version": "2.0.0",
+  "description": "Acervo histórico de jogos do Sport Club Corinthians Paulista — SPA em JavaScript puro com API Express + MySQL.",
+  "author": "Matheus Ribeiro de Oliveira",
+  "license": "ISC",
+  "private": true,
+  "type": "module",
+  "main": "server/server.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js",
+    "build:css": "tailwindcss -i ./src/styles/main.css -o ./public/assets/css/app.css --minify",
+    "watch:css": "tailwindcss -i ./src/styles/main.css -o ./public/assets/css/app.css --watch",
+    "build": "npm run build:css",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --test \"tests/**/*.test.js\"",
+    "escudos": "node scripts/escudos/buscar-escudos.js",
+    "mapa:base": "node scripts/mapa/gerar-geo.js"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "compression": "^1.8.2",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0",
+    "mysql2": "^3.24.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "d3-geo": "^3.1.1",
+    "eslint": "^9.39.5",
+    "globals": "^17.12.0",
+    "i18n-iso-countries": "^7.14.0",
+    "prettier": "^3.9.9",
+    "tailwindcss": "^3.4.19",
+    "topojson-client": "^3.1.0",
+    "topojson-server": "^3.0.1",
+    "topojson-simplify": "^3.0.3",
+    "world-atlas": "^2.0.2"
+  }
+}

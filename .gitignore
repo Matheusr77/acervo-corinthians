@@ -1,0 +1,26 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente (credenciais do banco)
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+*.log
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Relatório gerado por npm run escudos
+escudos-relatorio.csv
+
+# Correções enviadas pela torcida (dados reais, não versionar)
+data/
+
+# Arquivos baixados por npm run mapa:base (baixados de novo quando faltam)
+scripts/mapa/fontes/

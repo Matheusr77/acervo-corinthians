@@ -1,0 +1,4 @@
+node_modules/
+public/assets/css/
+package-lock.json
+design/
