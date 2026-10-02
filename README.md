@@ -212,6 +212,7 @@ Variáveis de ambiente em produção:
 | `DB_SSL`                                                      | `true` quando o banco exige conexão segura (ex.: Aiven)                                       |
 | `DB_SSL_CA`                                                   | conteúdo do certificado CA fornecido pela hospedagem                                          |
 | `ADMIN_TOKEN`                                                 | senha do painel de correções (opcional)                                                       |
+| `UMAMI_WEBSITE_ID`                                            | ID do site no Umami, para contar visitas (opcional)                                           |
 | `DATA_DIR`                                                    | pasta persistente para os avisos da torcida (opcional; padrão `data/`)                        |
 
 Comando de build: `npm ci --omit=dev` · Comando de início: `npm start`. A porta vem da variável `PORT`, que as hospedagens definem sozinhas.

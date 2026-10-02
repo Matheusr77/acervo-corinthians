@@ -39,6 +39,9 @@ function resumoTexto(r) {
     return `${numero(r.jogos)} jogos · ${r.vitorias}V ${r.empates}E ${r.derrotas}D · ${pct(r.aproveitamento)} de aproveitamento`;
 }
 
+/** Script do Umami Cloud (a mesma origem vai na Content-Security-Policy do app.js). */
+export const UMAMI_SCRIPT = 'https://cloud.umami.is/script.js';
+
 const naoEncontrado = () => ({ status: 404, titulo: 'Página não encontrada', descricao: DESCRICAO_PADRAO });
 const ok = (titulo, descricao = DESCRICAO_PADRAO) => ({ status: 200, titulo, descricao });
 
@@ -188,7 +191,13 @@ export async function renderIndex(meta, url, base) {
         '<meta property="og:image:width" content="1200" />',
         '<meta property="og:image:height" content="630" />',
         '<meta name="twitter:card" content="summary_large_image" />',
-    ].join('\n        ');
+        // Estatísticas de visitas (Umami): só em produção e fora do painel de administração
+        config.umamiId && config.isProduction && !meta.noindex
+            ? `<script defer src="${UMAMI_SCRIPT}" data-website-id="${esc(config.umamiId)}"></script>`
+            : '',
+    ]
+        .filter(Boolean)
+        .join('\n        ');
 
     return template.replace(
         /<!-- seo:start -->[\s\S]*?<!-- seo:end -->/,

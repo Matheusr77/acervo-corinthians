@@ -14,6 +14,9 @@ import apiRoutes from './routes/index.js';
 import * as seo from './services/seoService.js';
 import { imagemDoJogo } from './services/ogImageService.js';
 
+/** Origens do Umami (estatísticas de visitas), liberadas só quando ele está configurado. */
+const UMAMI = config.umamiId ? ['https://cloud.umami.is', 'https://api-gateway.umami.dev'] : [];
+
 export function createApp() {
     const app = express();
 
@@ -24,7 +27,7 @@ export function createApp() {
             contentSecurityPolicy: {
                 directives: {
                     defaultSrc: ["'self'"],
-                    scriptSrc: ["'self'"],
+                    scriptSrc: ["'self'", ...UMAMI.slice(0, 1)],
                     styleSrc: ["'self'", 'https://fonts.googleapis.com'],
                     // Larguras das barras de progresso são definidas via atributo style
                     styleSrcAttr: ["'unsafe-inline'"],
@@ -36,7 +39,7 @@ export function createApp() {
                         'https://images.unsplash.com',
                         'https://plus.unsplash.com',
                     ],
-                    connectSrc: ["'self'"],
+                    connectSrc: ["'self'", ...UMAMI],
                     objectSrc: ["'none'"],
                     upgradeInsecureRequests: config.isProduction ? [] : null,
                 },

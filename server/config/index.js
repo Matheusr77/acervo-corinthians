@@ -66,6 +66,14 @@ const config = Object.freeze({
         dados: path.resolve(ROOT_DIR, process.env.DATA_DIR?.trim() || 'data'),
     }),
 
+    /**
+     * ID do site no Umami (estatísticas de visitas, sem cookies). Sem ele, nada é carregado.
+     * Só vale em produção, para não contar os testes no computador.
+     */
+    umamiId: /^[0-9a-f-]{36}$/i.test(process.env.UMAMI_WEBSITE_ID?.trim() ?? '')
+        ? process.env.UMAMI_WEBSITE_ID.trim()
+        : null,
+
     /** Senha do painel /admin/correcoes (sem ela, o painel fica desligado). */
     adminToken: process.env.ADMIN_TOKEN?.trim() || null,
 
