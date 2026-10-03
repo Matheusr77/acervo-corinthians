@@ -84,26 +84,33 @@ function sortearFrase(resumo) {
     return frase;
 }
 
-/** Frases compridas usam letra menor para não estourar a tela. */
+/**
+ * Frases compridas usam letra menor para não estourar a tela.
+ * Em telas baixas (notebook) o título também encolhe, para caber tudo no topo.
+ */
+const TELA_BAIXA = 'md:[@media(max-height:800px)]:text-6xl lg:[@media(max-height:800px)]:text-7xl';
 function tamanhoTitulo([linha1, linha2]) {
     const maior = Math.max(linha1.length, linha2.length);
-    if (maior <= 7) return 'text-6xl md:text-8xl lg:text-9xl';
-    if (maior <= 10) return 'text-[clamp(2rem,12.5vw,2.75rem)] leading-[0.95] sm:text-6xl md:text-7xl lg:text-8xl';
-    return 'text-[clamp(1.8rem,10.5vw,2.6rem)] leading-[0.95] sm:text-6xl md:text-7xl lg:text-8xl';
+    if (maior <= 7) return `text-6xl md:text-8xl lg:text-9xl ${TELA_BAIXA}`;
+    if (maior <= 10)
+        return `text-[clamp(2rem,12.5vw,2.75rem)] leading-[0.95] sm:text-6xl md:text-7xl lg:text-8xl ${TELA_BAIXA}`;
+    return `text-[clamp(1.8rem,10.5vw,2.6rem)] leading-[0.95] sm:text-6xl md:text-7xl lg:text-8xl ${TELA_BAIXA}`;
 }
 
 function hero(resumo) {
     const frase = sortearFrase(resumo);
     return html`
         <section
-            class="relative h-[85vh] min-h-[560px] w-full overflow-hidden flex items-end justify-start group bg-black"
+            class="relative min-h-[max(560px,85vh)] w-full overflow-hidden flex items-end justify-start group bg-black"
         >
             <div
                 class="absolute inset-0 bg-[url('/assets/img/arena-hero.jpg')] bg-cover bg-center transition-transform duration-[2000ms] group-hover:scale-105 opacity-80"
             ></div>
             <div class="absolute inset-0 bg-gradient-to-t from-sccp-black via-sccp-black/50 to-transparent"></div>
 
-            <div class="relative z-10 w-full max-w-7xl mx-auto px-6 pb-20 md:pb-28">
+            <div
+                class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-10 pb-16 md:pb-28 [@media(max-height:800px)]:md:pb-16"
+            >
                 <div class="max-w-4xl space-y-6 animate-fade-in">
                     <div
                         class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md border border-gray-700 text-white font-bold text-[10px] sm:text-xs uppercase tracking-[0.15em] sm:tracking-[0.2em] whitespace-nowrap mb-4"
@@ -122,7 +129,7 @@ function hero(resumo) {
                     </h1>
 
                     <p
-                        class="text-gray-300 text-lg md:text-2xl max-w-xl leading-relaxed font-light border-l-4 border-sccp-gold pl-6 mt-6"
+                        class="text-gray-300 text-lg md:text-2xl md:[@media(max-height:800px)]:text-xl max-w-xl leading-relaxed font-light border-l-4 border-sccp-gold pl-6 mt-6"
                     >
                         "Bem-vinda, Fiel!" <br />
                         ${
@@ -132,7 +139,7 @@ function hero(resumo) {
                         }
                     </p>
 
-                    <div class="flex flex-col sm:flex-row gap-4 pt-8">
+                    <div class="flex flex-col sm:flex-row gap-4 pt-8 [@media(max-height:800px)]:pt-4">
                         <a href="/jogos" class="btn-hero-primary">Explorar Jogos</a>
                         <a href="/minha-historia" class="btn-hero-secondary">O Timão na sua vida</a>
                     </div>
@@ -177,7 +184,7 @@ function ultimosJogos(recentes) {
     if (!recentes?.length) return '';
     return html`
         <section class="py-16">
-            <div class="flex items-end justify-between mb-8 border-b border-gray-800 pb-4 gap-4">
+            <div class="flex flex-wrap items-end justify-between mb-8 border-b border-gray-800 pb-4 gap-x-4 gap-y-2">
                 <h3 class="text-3xl font-display font-bold text-white">Últimos Jogos</h3>
                 ${linkAcao('/jogos', 'Ver todos')}
             </div>
@@ -236,7 +243,7 @@ function salaDeTrofeus(titulos) {
     if (!titulos) return '';
     return html`
         <section class="pt-4 pb-12">
-            <div class="flex items-end justify-between mb-8 border-b border-gray-800 pb-4 gap-4">
+            <div class="flex flex-wrap items-end justify-between mb-8 border-b border-gray-800 pb-4 gap-x-4 gap-y-2">
                 <h3 class="text-3xl font-display font-bold text-white">Sala de Troféus</h3>
                 ${linkAcao('/titulos', 'Todos os títulos')}
             </div>
@@ -261,7 +268,7 @@ function salaDeTrofeus(titulos) {
 function explorar() {
     return html`
         <section class="pb-8 pt-4">
-            <div class="flex items-end justify-between mb-10 border-b border-gray-800 pb-4 gap-4">
+            <div class="flex flex-wrap items-end justify-between mb-10 border-b border-gray-800 pb-4 gap-x-4 gap-y-2">
                 <h3 class="text-3xl font-display font-bold text-white">Explorar o Museu</h3>
                 ${linkAcao('/jogos', 'Ver arquivo completo')}
             </div>

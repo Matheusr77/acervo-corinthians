@@ -60,6 +60,18 @@ const CREDITOS = [
     },
 ];
 
+/** Linha do tempo dos escudos (arquivos em /assets/img/sobre/escudos). */
+const ESCUDOS = [
+    { arquivo: '1910', escuro: '1910-escuro', periodo: '1910 a 1913' },
+    { arquivo: '1914', periodo: '1914' },
+    { arquivo: '1916', periodo: '1916' },
+    { arquivo: '1917a', periodo: '1917' },
+    { arquivo: '1917b', periodo: '1917' },
+    { arquivo: '1919', periodo: '1919' },
+    { arquivo: '1940', periodo: '1940' },
+    { arquivo: '1980', periodo: '1980 até hoje', atual: true },
+];
+
 const titulo = (texto) => html`<h3 class="text-2xl font-display font-bold text-white">${texto}</h3>`;
 const linkTexto = 'text-white underline underline-offset-4 decoration-gray-500 hover:decoration-white';
 
@@ -186,16 +198,54 @@ export default {
                             Do monograma "CP" de 1910 ao escudo com âncora e remos de hoje: o símbolo do Corinthians
                             mudou várias vezes ao longo da história.
                         </p>
-                        <div class="bg-white rounded-xl p-6 flex justify-center">
-                            <img
-                                src="/assets/img/sobre/evolucao-escudos.jpg"
-                                alt="A evolução dos escudos do Corinthians, do monograma CP ao escudo atual"
-                                width="454"
-                                height="170"
-                                loading="lazy"
-                                class="w-full max-w-sm h-auto"
-                            />
-                        </div>
+                        <ol
+                            class="grid grid-cols-2 sm:grid-cols-4 gap-3"
+                            aria-label="Linha do tempo dos escudos do Corinthians"
+                        >
+                            ${ESCUDOS.map(
+                                (e) => html`
+                                    <li
+                                        class="bg-gray-900 border ${e.atual ? 'border-sccp-gold/50' : 'border-gray-800'} rounded-xl p-4 flex flex-col items-center gap-3"
+                                    >
+                                        <div class="h-24 sm:h-28 w-full flex items-center justify-center">
+                                            ${
+                                                e.escuro
+                                                    ? html`<img
+                                                              src="/assets/img/sobre/escudos/${e.escuro}.png"
+                                                              data-escudo
+                                                              alt="Escudo do Corinthians de ${e.periodo}"
+                                                              loading="lazy"
+                                                              class="max-h-full max-w-full w-auto object-contain"
+                                                          /><img
+                                                              src="/assets/img/sobre/escudos/${e.arquivo}.png"
+                                                              data-escudo-claro
+                                                              alt="Escudo do Corinthians de ${e.periodo}"
+                                                              loading="lazy"
+                                                              class="max-h-full max-w-full w-auto object-contain"
+                                                          />`
+                                                    : html`<img
+                                                          src="/assets/img/sobre/escudos/${e.arquivo}.png"
+                                                          alt="Escudo do Corinthians de ${e.periodo}"
+                                                          loading="lazy"
+                                                          class="max-h-full max-w-full w-auto object-contain"
+                                                      />`
+                                            }
+                                        </div>
+                                        <p class="text-center leading-tight">
+                                            <span class="block text-sm font-bold text-white">${e.periodo}</span>
+                                            ${
+                                                e.atual
+                                                    ? html`<span
+                                                          class="block text-[10px] uppercase tracking-wider font-bold text-sccp-gold mt-1"
+                                                          >Atual</span
+                                                      >`
+                                                    : ''
+                                            }
+                                        </p>
+                                    </li>
+                                `,
+                            )}
+                        </ol>
                     </section>
 
                     <!-- 6. Perguntas frequentes -->
