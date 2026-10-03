@@ -137,7 +137,7 @@ export async function metaDaRota(pathname) {
     const rota = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
     if (ESTATICAS[rota]) return ESTATICAS[rota];
     // Painel de administração: existe, mas não entra no Google nem no sitemap
-    if (rota === '/admin/correcoes') return { ...ok('Correções recebidas'), noindex: true };
+    if (rota === '/admin/correcoes' || rota === '/admin/posts') return { ...ok('Painel'), noindex: true };
 
     for (const [padrao, montar] of DINAMICAS) {
         const m = padrao.exec(rota);

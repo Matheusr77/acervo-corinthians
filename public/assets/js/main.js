@@ -6,9 +6,11 @@
 import { iniciarBusca } from './components/busca.js';
 import { iniciarCorrecoes } from './components/correcao.js';
 import { iniciarNavegacao } from './components/navegacao.js';
+import { iniciarRedes } from './components/redes.js';
 import { Router } from './core/router.js';
 import { iniciarTema } from './core/tema.js';
 import adminCorrecoes from './views/adminCorrecoes.js';
+import adminPosts from './views/adminPosts.js';
 import adversarioDetalhe from './views/adversarioDetalhe.js';
 import adversarios from './views/adversarios.js';
 import classicoDetalhe from './views/classicoDetalhe.js';
@@ -52,6 +54,7 @@ const ROUTES = [
     { path: '/minha-historia', view: minhaHistoria, nav: 'minha-historia' },
     { path: '/sobre', view: sobre, nav: 'sobre' },
     { path: '/admin/correcoes', view: adminCorrecoes },
+    { path: '/admin/posts', view: adminPosts },
 ];
 
 const ACTIVE_CLASSES = ['text-white', 'border-white'];
@@ -106,6 +109,7 @@ function setupSkipLink() {
 }
 
 iniciarNavegacao();
+iniciarRedes();
 setupMobileMenu();
 setupFooterYear();
 setupSkipLink();

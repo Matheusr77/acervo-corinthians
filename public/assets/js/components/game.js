@@ -5,6 +5,9 @@
 import { html } from '../core/html.js';
 import { RESULTADO_LABEL, anoDe, formatarData, formatarDiaMes } from '../utils/format.js';
 
+/** Sigla do Corinthians usada no site todo. */
+export const SIGLA_CLUBE = 'SCCP';
+
 const BADGE_CLASSES = {
     V: 'bg-green-500/10 text-green-500 border-green-500/20',
     E: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
@@ -85,26 +88,30 @@ export function gameCard(jogo) {
                 </span>
             </div>
 
-            <div class="flex items-center justify-between min-h-[36px]">
-                <div class="flex-1 flex items-center justify-center gap-2 sm:gap-4 min-w-0">
-                    <span class="flex-1 min-w-0 flex items-center justify-end gap-2">
-                        <span class="text-sm sm:text-base font-medium text-white truncate">Corinthians</span>
+            <div class="flex items-center gap-3 sm:gap-4 min-h-[36px]">
+                <!-- Três colunas: as dos times têm a mesma largura, então o placar fica sempre no meio -->
+                <div
+                    class="flex-1 min-w-0 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:gap-4"
+                >
+                    <span class="min-w-0 flex items-center justify-end gap-2 text-right">
+                        <span class="nome-time text-sm sm:text-base font-medium text-white">Corinthians</span>
                         ${miniEscudo(jogo.emCasa ? jogo.mandante : jogo.visitante)}
                     </span>
-                    <div
-                        class="bg-sccp-black border border-gray-700 rounded-lg px-3 py-1 min-w-[75px] text-center font-display font-bold text-lg text-white group-hover:border-gray-500 transition flex-shrink-0 whitespace-nowrap"
+                    <span
+                        class="bg-sccp-black border border-gray-700 rounded-lg px-2 sm:px-3 py-1 w-[76px] sm:w-[84px] text-center font-display font-bold text-base sm:text-lg text-white group-hover:border-gray-500 transition whitespace-nowrap"
                     >
                         ${placarCorinthians(jogo)}
-                    </div>
-                    <span class="flex-1 min-w-0 flex items-center gap-2">
+                    </span>
+                    <span class="min-w-0 flex items-center gap-2">
                         ${miniEscudo(jogo.adversario)}
-                        <span class="text-sm sm:text-base font-medium text-white truncate"
+                        <span class="nome-time text-sm sm:text-base font-medium text-white"
                             >${jogo.adversario.nome}</span
                         >
                     </span>
                 </div>
-                <span class="ml-3 sm:ml-4 hidden sm:inline-flex">${resultBadge(jogo.resultado)}</span>
-                <span class="ml-3 sm:hidden">${resultBadge(jogo.resultado, { compacto: true })}</span>
+                <!-- Selo com largura fixa: "Empate" e "Derrota" não empurram o placar -->
+                <span class="hidden sm:flex w-[76px] justify-end flex-shrink-0">${resultBadge(jogo.resultado)}</span>
+                <span class="sm:hidden flex-shrink-0">${resultBadge(jogo.resultado, { compacto: true })}</span>
             </div>
         </a>
     `;
@@ -120,17 +127,24 @@ export function gameRow(jogo, { destaque } = {}) {
         <li>
             <a
                 href="/jogos/${jogo.id}"
-                class="flex items-center gap-3 py-2.5 border-b border-gray-800 last:border-0 hover:bg-white/[0.03] -mx-2 px-2 rounded transition"
+                class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto] sm:grid-cols-[auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto] items-center gap-x-2 sm:gap-x-3 gap-y-0.5 py-2.5 border-b border-gray-800 last:border-0 hover:bg-white/[0.03] -mx-2 px-2 rounded transition"
             >
-                <span class="text-xs text-gray-400 w-20 flex-shrink-0">${formatarData(jogo.data)}</span>
-                <span class="flex-1 min-w-0 text-sm text-gray-200 truncate">
-                    ${jogo.emCasa ? 'Corinthians' : jogo.adversario.nome}
-                    <strong class="text-white font-display mx-1"
-                        >${jogo.placar.mandante ?? '–'} x ${jogo.placar.visitante ?? '–'}</strong
-                    >
-                    ${jogo.emCasa ? jogo.adversario.nome : 'Corinthians'}
-                </span>
-                ${destaque ?? resultBadge(jogo.resultado, { compacto: true })}
+                <!-- No celular a data fica numa linha própria, para sobrar espaço aos nomes -->
+                <span class="col-span-full sm:col-span-1 text-xs text-gray-400 sm:w-20"
+                    >${formatarData(jogo.data)}</span
+                >
+                <span class="nome-time text-sm text-gray-200 text-right"
+                    >${jogo.emCasa ? 'Corinthians' : jogo.adversario.nome}</span
+                >
+                <strong class="text-white font-display text-center w-14 whitespace-nowrap"
+                    >${jogo.placar.mandante ?? '–'} x ${jogo.placar.visitante ?? '–'}</strong
+                >
+                <span class="nome-time text-sm text-gray-200"
+                    >${jogo.emCasa ? jogo.adversario.nome : 'Corinthians'}</span
+                >
+                <span class="flex justify-end min-w-[1.75rem]"
+                    >${destaque ?? resultBadge(jogo.resultado, { compacto: true })}</span
+                >
             </a>
         </li>
     `;
@@ -138,13 +152,12 @@ export function gameRow(jogo, { destaque } = {}) {
 
 /**
  * Escudo do time: a imagem, quando existe em /assets/img/escudos/, ou um
- * círculo com a sigla (Corinthians sem imagem: "CP").
+ * círculo com a sigla (Corinthians sem imagem: "SCCP").
  * @param {{ nome: string, sigla?: string | null, escudo?: string | null }} time
  * @param {{ clube?: boolean, tamanho?: 'md' | 'lg' }} [opcoes]
  */
 export function teamCrest(time, { clube = false, tamanho = 'lg' } = {}) {
-    const tamanhoClasse =
-        tamanho === 'lg' ? 'w-20 h-20 md:w-32 md:h-32 text-2xl md:text-4xl' : 'w-14 h-14 md:w-16 md:h-16 text-lg';
+    const caixa = tamanho === 'lg' ? 'w-16 h-16 sm:w-20 sm:h-20 md:w-32 md:h-32' : 'w-14 h-14 md:w-16 md:h-16';
 
     if (time.escudo) {
         return html`
@@ -153,19 +166,29 @@ export function teamCrest(time, { clube = false, tamanho = 'lg' } = {}) {
                 alt=""
                 aria-hidden="true"
                 loading="lazy"
-                class="${tamanhoClasse} mx-auto object-contain drop-shadow-lg"
+                class="${caixa} mx-auto object-contain drop-shadow-lg"
             />
         `;
     }
 
-    const sigla = (time.sigla || time.nome.slice(0, 3)).toUpperCase();
+    const sigla = clube ? SIGLA_CLUBE : (time.sigla || time.nome.slice(0, 3)).toUpperCase();
+    // Siglas de 4 letras (SCCP) usam uma letra menor para caber no círculo
+    const curta = sigla.length <= 3;
+    const letra =
+        tamanho === 'lg'
+            ? curta
+                ? 'text-xl sm:text-2xl md:text-4xl'
+                : 'text-base sm:text-xl md:text-3xl tracking-tight'
+            : curta
+              ? 'text-lg'
+              : 'text-sm tracking-tight';
     const corClasse = clube ? 'bg-white text-black' : 'bg-gray-800 text-white';
     return html`
         <div
-            class="${tamanhoClasse} ${corClasse} rounded-full mx-auto flex items-center justify-center border-4 border-gray-800 shadow-lg font-bold"
+            class="${caixa} ${letra} ${corClasse} rounded-full mx-auto flex items-center justify-center border-4 border-gray-800 shadow-lg font-bold"
             aria-hidden="true"
         >
-            ${clube ? 'CP' : sigla}
+            ${sigla}
         </div>
     `;
 }

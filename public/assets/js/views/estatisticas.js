@@ -126,7 +126,9 @@ function secaoEvolucao(temporadas, resumo) {
 }
 
 const destaqueSaldo = (cor) => (j) =>
-    html`<span class="text-sm font-bold ${cor} flex-shrink-0">${Math.abs(j.golsPro - j.golsContra)} gols</span>`;
+    html`<span class="text-sm font-bold ${cor} flex-shrink-0"
+        >${plural(Math.abs(j.golsPro - j.golsContra), 'gol')}</span
+    >`;
 
 export default {
     async render({ signal }) {

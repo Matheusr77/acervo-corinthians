@@ -16,6 +16,7 @@ import {
 import { gameRow } from '../components/game.js';
 import { breadcrumb, card, linkAcao } from '../components/layout.js';
 import { sequenciaTile } from '../components/stats.js';
+import { plural } from '../utils/format.js';
 
 /**
  * @param {string} titulo
@@ -30,7 +31,7 @@ function listaPlacares(titulo, jogos, cor) {
                   ${jogos.map((j) =>
                       gameRow(j, {
                           destaque: html`<span class="text-sm font-bold ${cor} flex-shrink-0"
-                              >${Math.abs(j.golsPro - j.golsContra)} gols</span
+                              >${plural(Math.abs(j.golsPro - j.golsContra), 'gol')}</span
                           >`,
                       }),
                   )}

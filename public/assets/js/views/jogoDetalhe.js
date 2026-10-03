@@ -37,7 +37,7 @@ function placar(jogo) {
     const lado = (time) => html`
         <div class="flex-1 text-center min-w-0">
             <div class="mb-4">${teamCrest(time, { clube: eClube(time) })}</div>
-            <h3 class="text-lg md:text-2xl font-bold text-white break-words">
+            <h3 class="text-sm sm:text-lg md:text-2xl font-bold text-white leading-tight">
                 ${eClube(time) ? html`${time.nome}` : html`<a href="/adversarios/${time.id}" class="hover:text-gray-300 transition">${time.nome}</a>`}
             </h3>
             <p class="text-xs text-gray-400 uppercase tracking-wider mt-1">
@@ -50,12 +50,6 @@ function placar(jogo) {
         <div
             class="bg-gradient-to-br from-gray-900 to-black border border-gray-800 rounded-xl p-6 md:p-12 relative overflow-hidden shadow-2xl"
         >
-            <div class="absolute top-0 right-0 p-4 opacity-10" aria-hidden="true">
-                <svg class="w-64 h-64 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16z" />
-                </svg>
-            </div>
-
             <div class="relative z-10 flex flex-col items-center justify-center space-y-8">
                 <div class="text-center space-y-1">
                     <h2 class="text-gray-400 text-sm font-bold uppercase tracking-[0.2em]">
@@ -71,9 +65,10 @@ function placar(jogo) {
 
                     <div class="flex flex-col items-center flex-shrink-0">
                         <div
-                            class="text-5xl md:text-7xl font-display font-bold text-white tracking-widest drop-shadow-lg whitespace-nowrap"
+                            class="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-white tracking-wider sm:tracking-widest drop-shadow-lg whitespace-nowrap"
                         >
-                            ${mandante ?? '–'} <span class="text-gray-500 mx-1 md:mx-2">-</span> ${visitante ?? '–'}
+                            ${mandante ?? '–'}
+                            <span class="text-gray-500 mx-0.5 sm:mx-1 md:mx-2">-</span> ${visitante ?? '–'}
                         </div>
                         ${
                             temPenaltis

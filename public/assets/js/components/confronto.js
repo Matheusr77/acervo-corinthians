@@ -29,20 +29,21 @@ export function placarConfronto(rival, resumo, { titulo, clube } = {}) {
                       </p>`
                     : ''
             }
-            <div class="flex items-center justify-center gap-4 md:gap-12">
+            <div class="flex items-start justify-center gap-4 md:gap-12">
                 <div class="flex-1 text-center">
                     ${teamCrest(clube ?? { nome: 'Corinthians' }, { clube: true, tamanho: 'md' })}
                     <h2 class="text-lg md:text-2xl font-bold text-white mt-3">Corinthians</h2>
+                    ${local ? html`<p class="text-xs text-gray-400">São Paulo · SP</p>` : ''}
                     <p class="text-3xl md:text-5xl font-display font-bold text-green-400 mt-2">${resumo.vitorias}</p>
                     <p class="text-xs text-gray-400 uppercase">Vitórias</p>
                 </div>
-                <div class="text-center flex-shrink-0">
+                <div class="text-center flex-shrink-0 self-center">
                     <p class="text-3xl md:text-5xl font-display font-bold text-gray-400">${resumo.empates}</p>
                     <p class="text-xs text-gray-400 uppercase">Empates</p>
                 </div>
                 <div class="flex-1 text-center">
                     ${teamCrest(rival, { tamanho: 'md' })}
-                    <h2 class="text-lg md:text-2xl font-bold text-white mt-3 break-words">${rival.nome}</h2>
+                    <h2 class="text-lg md:text-2xl font-bold text-white mt-3 leading-tight">${rival.nome}</h2>
                     ${local ? html`<p class="text-xs text-gray-400">${local}</p>` : ''}
                     <p class="text-3xl md:text-5xl font-display font-bold text-red-400 mt-2">${resumo.derrotas}</p>
                     <p class="text-xs text-gray-400 uppercase">Vitórias</p>

@@ -15,7 +15,16 @@ import { botaoCompartilhar, ligarCompartilhar } from '../components/compartilhar
 import { gameCard, miniEscudo } from '../components/game.js';
 import { card } from '../components/layout.js';
 import { corAproveitamento, kpi, sequenciaTile } from '../components/stats.js';
-import { gerarCartaoStory, ordenarPorPrestigio, rotuloTitulo } from '../utils/cartaoStory.js';
+import {
+    DESTAQUES,
+    FORMATOS,
+    FRASE_CORINTHIANO,
+    MODELOS,
+    gerarCartao,
+    ordenarPorPrestigio,
+    rotuloTitulo,
+} from '../utils/cartaoStory.js';
+import { debounce } from '../utils/debounce.js';
 import { anoDe, formatarData, formatarNumero, formatarPorcentagem, hojeIso, plural } from '../utils/format.js';
 
 const FORMATO_DATA = /^\d{4}-\d{2}-\d{2}$/;
@@ -238,15 +247,124 @@ function resultado(dados, nome) {
                 </div>
             </section>
 
-            <section class="bg-sccp-gray border border-gray-700 rounded-xl p-6 md:p-10">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                    <div class="space-y-4">
-                        <h3 class="text-3xl font-display font-bold text-white">Mostre para a Fiel</h3>
-                        <p class="text-gray-400">
-                            Sua imagem no tamanho de story, pronta para o Instagram e o WhatsApp. Desafie os amigos a
-                            descobrirem a deles.
-                        </p>
-                        <div class="flex flex-wrap gap-3">
+            <section class="bg-sccp-gray border border-gray-700 rounded-xl p-5 md:p-10" id="editor-cartao">
+                <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto] gap-8 items-start">
+                    <div class="space-y-6 min-w-0">
+                        <div class="space-y-2">
+                            <h3 class="text-3xl font-display font-bold text-white">Mostre para a Fiel</h3>
+                            <p class="text-gray-400">
+                                Escolha o modelo, o formato e o que aparece. A imagem é feita aqui no seu aparelho: nada
+                                é enviado para o site, nem a sua foto.
+                            </p>
+                        </div>
+
+                        <fieldset class="space-y-2 min-w-0">
+                            <legend class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
+                                Modelo
+                            </legend>
+                            <div class="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x" role="radiogroup">
+                                ${MODELOS.map(
+                                    (m, i) => html`
+                                        <button
+                                            type="button"
+                                            role="radio"
+                                            aria-checked="${i === 0}"
+                                            data-modelo="${m.id}"
+                                            class="group flex-shrink-0 snap-start w-[72px] text-center focus-visible:outline-none"
+                                        >
+                                            <img
+                                                src="/assets/img/story/miniaturas/${m.id}.jpg"
+                                                alt=""
+                                                width="72"
+                                                height="128"
+                                                loading="lazy"
+                                                class="w-[72px] h-[128px] object-cover rounded-lg border-2 border-transparent group-aria-checked:border-sccp-gold group-hover:border-gray-500 group-focus-visible:border-white transition"
+                                            />
+                                            <span
+                                                class="block text-[11px] mt-1 text-gray-400 group-aria-checked:text-white group-aria-checked:font-bold"
+                                                >${m.nome}</span
+                                            >
+                                        </button>
+                                    `,
+                                )}
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
+                                Formato
+                            </legend>
+                            <div class="grid grid-cols-3 gap-2" role="radiogroup">
+                                ${Object.entries(FORMATOS).map(
+                                    ([id, f], i) => html`
+                                        <button
+                                            type="button"
+                                            role="radio"
+                                            aria-checked="${i === 0}"
+                                            data-formato="${id}"
+                                            class="rounded-lg border border-gray-700 px-3 py-2 text-left transition hover:border-gray-500 aria-checked:border-sccp-gold aria-checked:bg-white/5"
+                                        >
+                                            <span class="block text-sm font-bold text-white">${f.nome}</span>
+                                            <span class="block text-[11px] text-gray-400 leading-tight"
+                                                >${f.descricao}</span
+                                            >
+                                        </button>
+                                    `,
+                                )}
+                            </div>
+                        </fieldset>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label
+                                    for="cartao-destaque"
+                                    class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2"
+                                    >Destaque</label
+                                >
+                                <select id="cartao-destaque" class="form-control py-2.5">
+                                    ${Object.entries(DESTAQUES).map(([id, rotulo]) => html`<option value="${id}">${rotulo}</option>`)}
+                                </select>
+                            </div>
+                            <div>
+                                <span class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2"
+                                    >Foto de fundo</span
+                                >
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="btn-secondary text-sm cursor-pointer">
+                                        <input type="file" id="cartao-foto" accept="image/*" class="sr-only" />
+                                        Usar minha foto
+                                    </label>
+                                    <button type="button" id="cartao-tirar-foto" class="btn-ghost text-sm" hidden>
+                                        Tirar foto
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            ${
+                                nome
+                                    ? html`<label class="flex items-center gap-3 text-sm text-gray-300 cursor-pointer">
+                                          <input
+                                              type="checkbox"
+                                              id="cartao-nome"
+                                              checked
+                                              class="w-4 h-4 accent-[#D4AF37]"
+                                          />
+                                          Mostrar meu nome (${nome})
+                                      </label>`
+                                    : ''
+                            }
+                            <label class="flex items-start gap-3 text-sm text-gray-300 cursor-pointer">
+                                <input type="checkbox" id="cartao-frase" class="w-4 h-4 mt-0.5 accent-[#D4AF37]" />
+                                <span
+                                    >Incluir a frase “${FRASE_CORINTHIANO}”
+                                    <span class="text-gray-500">(no story e no feed)</span></span
+                                >
+                            </label>
+                        </div>
+
+                        <div class="flex flex-wrap gap-3 pt-2">
                             <button type="button" id="baixar-imagem" class="btn-primary" disabled>
                                 Gerando imagem…
                             </button>
@@ -256,15 +374,13 @@ function resultado(dados, nome) {
                             >↺ Fazer com outra data</a
                         >
                     </div>
-                    <div class="flex justify-center">
+
+                    <div class="flex justify-center order-first lg:order-none lg:sticky lg:top-28">
                         <div
-                            class="w-56 md:w-64 aspect-[9/16] rounded-xl overflow-hidden border border-gray-700 bg-black shadow-2xl"
+                            id="previa-moldura"
+                            class="w-48 sm:w-64 md:w-72 aspect-[9/16] rounded-xl overflow-hidden border border-gray-700 bg-black shadow-2xl"
                         >
-                            <img
-                                id="previa-story"
-                                alt="Prévia da imagem para story"
-                                class="w-full h-full object-cover hidden"
-                            />
+                            <img id="previa-story" alt="Prévia da imagem" class="w-full h-full object-cover hidden" />
                             <div
                                 id="previa-carregando"
                                 class="w-full h-full flex items-center justify-center text-gray-500 text-sm"
@@ -355,23 +471,122 @@ export default {
         );
         ligarCompartilhar(root, 'compartilhar-historia', dadosCompartilhar);
 
-        try {
-            const dados = await api.minhaHistoria(nascimento); // vem do cache
-            const blob = await gerarCartaoStory(dados, { nome, site: location.host });
-            arquivo = new File([blob], 'timao-na-minha-vida.png', { type: 'image/png' });
-            urlPrevia = URL.createObjectURL(blob);
-            previa.src = urlPrevia;
-            previa.classList.remove('hidden');
-            carregando?.classList.add('hidden');
+        const moldura = /** @type {HTMLElement} */ (root.querySelector('#previa-moldura'));
+        const ASPECTO = { story: 'aspect-[9/16]', feed: 'aspect-[4/5]', quadrado: 'aspect-square' };
+        const opcoes = {
+            modelo: MODELOS[0].id,
+            formato: 'story',
+            destaque: 'titulos',
+            frase: false,
+            mostrarNome: true,
+        };
+        let fotoPropria = /** @type {HTMLImageElement | null} */ (null);
+        let urlFoto = null;
+        let dados = null;
+        let geracao = 0;
 
-            botaoBaixar.disabled = false;
-            botaoBaixar.textContent = 'Baixar imagem';
-            botaoBaixar.addEventListener('click', () => {
-                const link = document.createElement('a');
-                link.href = urlPrevia;
-                link.download = 'timao-na-minha-vida.png';
-                link.click();
-            });
+        const nomeArquivo = () => `timao-na-minha-vida-${opcoes.formato}.png`;
+
+        const gerar = async () => {
+            if (!dados) return;
+            const minha = ++geracao;
+            botaoBaixar.disabled = true;
+            botaoBaixar.textContent = 'Gerando imagem…';
+            try {
+                const blob = await gerarCartao(dados, {
+                    ...opcoes,
+                    nome: opcoes.mostrarNome ? nome : '',
+                    site: location.host,
+                    fotoPropria,
+                });
+                if (minha !== geracao) return; // o usuário já mudou de opção
+                arquivo = new File([blob], nomeArquivo(), { type: 'image/png' });
+                if (urlPrevia) URL.revokeObjectURL(urlPrevia);
+                urlPrevia = URL.createObjectURL(blob);
+                previa.src = urlPrevia;
+                previa.classList.remove('hidden');
+                carregando?.classList.add('hidden');
+                botaoBaixar.disabled = false;
+                botaoBaixar.textContent = 'Baixar imagem';
+            } catch (err) {
+                console.error(err);
+                botaoBaixar.textContent = 'Não foi possível gerar a imagem';
+                if (carregando) carregando.textContent = 'Erro ao gerar';
+            }
+        };
+        const gerarDepois = debounce(gerar, 120);
+
+        /** Marca a opção escolhida num grupo de botões (modelo ou formato). */
+        const escolher = (atributo, valor) => {
+            root.querySelectorAll(`[${atributo}]`).forEach((b) =>
+                b.setAttribute('aria-checked', String(b.getAttribute(atributo) === valor)),
+            );
+        };
+
+        root.querySelector('#editor-cartao')?.addEventListener('click', (e) => {
+            const alvo = /** @type {HTMLElement} */ (e.target);
+            const m = alvo.closest('[data-modelo]');
+            const f = alvo.closest('[data-formato]');
+            if (m) {
+                opcoes.modelo = m.getAttribute('data-modelo') ?? opcoes.modelo;
+                escolher('data-modelo', opcoes.modelo);
+                gerarDepois();
+            } else if (f) {
+                opcoes.formato = f.getAttribute('data-formato') ?? opcoes.formato;
+                escolher('data-formato', opcoes.formato);
+                moldura.classList.remove(...Object.values(ASPECTO));
+                moldura.classList.add(ASPECTO[opcoes.formato]);
+                gerarDepois();
+            }
+        });
+
+        root.querySelector('#cartao-destaque')?.addEventListener('change', (e) => {
+            opcoes.destaque = /** @type {HTMLSelectElement} */ (e.target).value;
+            gerarDepois();
+        });
+        root.querySelector('#cartao-frase')?.addEventListener('change', (e) => {
+            opcoes.frase = /** @type {HTMLInputElement} */ (e.target).checked;
+            gerarDepois();
+        });
+        root.querySelector('#cartao-nome')?.addEventListener('change', (e) => {
+            opcoes.mostrarNome = /** @type {HTMLInputElement} */ (e.target).checked;
+            gerarDepois();
+        });
+
+        // Foto própria: lida só no navegador (não vai para o servidor)
+        const inputFoto = /** @type {HTMLInputElement} */ (root.querySelector('#cartao-foto'));
+        const botaoTirarFoto = /** @type {HTMLButtonElement} */ (root.querySelector('#cartao-tirar-foto'));
+        inputFoto?.addEventListener('change', () => {
+            const file = inputFoto.files?.[0];
+            if (!file || !file.type.startsWith('image/')) return;
+            if (urlFoto) URL.revokeObjectURL(urlFoto);
+            urlFoto = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = () => {
+                fotoPropria = img;
+                botaoTirarFoto.hidden = false;
+                gerar();
+            };
+            img.src = urlFoto;
+        });
+        botaoTirarFoto?.addEventListener('click', () => {
+            fotoPropria = null;
+            inputFoto.value = '';
+            botaoTirarFoto.hidden = true;
+            gerar();
+        });
+
+        botaoBaixar.addEventListener('click', () => {
+            if (!urlPrevia) return;
+            const link = document.createElement('a');
+            link.href = urlPrevia;
+            link.download = nomeArquivo();
+            link.click();
+        });
+
+        try {
+            dados = await api.minhaHistoria(nascimento); // vem do cache
+            await gerar();
         } catch (err) {
             console.error(err);
             botaoBaixar.textContent = 'Não foi possível gerar a imagem';
@@ -379,7 +594,9 @@ export default {
         }
 
         return () => {
+            geracao++;
             if (urlPrevia) URL.revokeObjectURL(urlPrevia);
+            if (urlFoto) URL.revokeObjectURL(urlFoto);
         };
     },
 };

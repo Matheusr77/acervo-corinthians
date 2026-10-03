@@ -25,7 +25,7 @@ function listaPlacares(titulo, jogos, cor) {
                   ${jogos.map((j) =>
                       gameRow(j, {
                           destaque: html`<span class="text-sm font-bold ${cor} flex-shrink-0"
-                              >${Math.abs(j.golsPro - j.golsContra)} gols</span
+                              >${plural(Math.abs(j.golsPro - j.golsContra), 'gol')}</span
                           >`,
                       }),
                   )}

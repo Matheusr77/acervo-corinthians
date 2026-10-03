@@ -64,11 +64,11 @@ function escudoSvg(time, cx, cy, eClube) {
     if (img) {
         return `<image href="${img}" x="${cx - 80}" y="${cy - 80}" width="160" height="160" preserveAspectRatio="xMidYMid meet"/>`;
     }
-    const sigla = eClube ? 'CP' : (time.sigla || time.nome.slice(0, 3)).toUpperCase();
+    const sigla = eClube ? 'SCCP' : (time.sigla || time.nome.slice(0, 3)).toUpperCase();
     const [bg, fg] = eClube ? ['#ffffff', '#000000'] : ['#262626', '#ffffff'];
     return `
         <circle cx="${cx}" cy="${cy}" r="78" fill="${bg}" stroke="#404040" stroke-width="6"/>
-        <text x="${cx}" y="${cy + 18}" text-anchor="middle" font-family="Poppins" font-weight="800" font-size="${ajustarFonte(sigla, 52, 120)}" fill="${fg}">${xml(sigla)}</text>`;
+        <text x="${cx}" y="${cy + 18}" text-anchor="middle" font-family="Poppins" font-weight="800" font-size="${ajustarFonte(sigla, 52, 116)}" fill="${fg}">${xml(sigla)}</text>`;
 }
 
 /**

@@ -58,6 +58,30 @@
     color-scheme: light;
 }
 
+/* Letreiro do rodapé: medido pela largura do rodapé (unidade cqw), com vw de reserva */
+.rodape {
+    container-type: inline-size;
+}
+.letreiro {
+    font-family: Poppins, sans-serif;
+    font-weight: 900;
+    line-height: 0.75;
+    letter-spacing: -0.05em;
+    white-space: nowrap;
+    color: rgb(var(--cinza-900));
+}
+.letreiro-nome {
+    font-size: 13vw;
+    font-size: 15cqw;
+}
+.letreiro-sigla {
+    font-size: 34vw;
+    font-size: 38cqw;
+}
+[data-tema='claro'] .letreiro {
+    color: rgb(var(--cinza-800));
+}
+
 /* Escudo: versão dourada no tema escuro, versão em dourado escuro (arquivo próprio) no tema claro */
 [data-escudo-claro],
 [data-tema='claro'] [data-escudo] {
@@ -147,6 +171,16 @@
     /* Link de texto discreto (tabelas e listas): sem cor de destaque, sublinha no hover */
     .link {
         @apply transition hover:underline underline-offset-4 decoration-gray-500;
+    }
+
+    /* Nome de time em listas: até 2 linhas, sem cortar no meio com "…" */
+    .nome-time {
+        @apply min-w-0 leading-tight;
+        overflow-wrap: normal;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .nav-link {

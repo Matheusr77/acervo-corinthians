@@ -47,7 +47,53 @@ async function carregarDados(signal) {
     return { resumo: valor(resumo), recentes: valor(recentes), titulos: valor(titulos), hoje: valor(hoje) };
 }
 
+/**
+ * Frases do título da home (linha de cima, linha de baixo em degradê).
+ * Uma é sorteada a cada visita, sem repetir a anterior. Para trocar, edite a lista.
+ * @type {((resumo: any) => [string, string] | null)[]}
+ */
+const FRASES = [
+    () => ['TODA A HISTÓRIA', 'DO TIMÃO'],
+    () => ['JOGO A JOGO', 'DESDE 1910'],
+    () => ['A MEMÓRIA', 'DA FIEL'],
+    () => ['AQUI TEM UM', 'BANDO DE LOUCOS'],
+    () => ['MALOQUEIRO', 'E SOFREDOR'],
+    () => ['FIEL', 'DESDE 1910'],
+    () => ['ETERNO', 'ALVINEGRO'],
+    (resumo) => (resumo ? [`${formatarNumero(resumo.jogos)} JOGOS.`, 'UMA PAIXÃO.'] : null),
+    () => ['O TIME', 'DO POVO'],
+    () => ['A CASA', 'DO POVO'],
+];
+const CHAVE_FRASE = 'acervo:frase-home';
+
+/** Sorteia uma frase diferente da última mostrada neste navegador. */
+function sortearFrase(resumo) {
+    let ultima = -1;
+    try {
+        ultima = Number(localStorage.getItem(CHAVE_FRASE) ?? -1);
+    } catch {
+        /* sem armazenamento: só não evita a repetição */
+    }
+    const validas = FRASES.map((f, i) => [i, f(resumo)]).filter(([i, f]) => f && i !== ultima);
+    const [indice, frase] = validas[Math.floor(Math.random() * validas.length)];
+    try {
+        localStorage.setItem(CHAVE_FRASE, String(indice));
+    } catch {
+        /* idem */
+    }
+    return frase;
+}
+
+/** Frases compridas usam letra menor para não estourar a tela. */
+function tamanhoTitulo([linha1, linha2]) {
+    const maior = Math.max(linha1.length, linha2.length);
+    if (maior <= 7) return 'text-6xl md:text-8xl lg:text-9xl';
+    if (maior <= 10) return 'text-[clamp(2rem,12.5vw,2.75rem)] leading-[0.95] sm:text-6xl md:text-7xl lg:text-8xl';
+    return 'text-[clamp(1.8rem,10.5vw,2.6rem)] leading-[0.95] sm:text-6xl md:text-7xl lg:text-8xl';
+}
+
 function hero(resumo) {
+    const frase = sortearFrase(resumo);
     return html`
         <section
             class="relative h-[85vh] min-h-[560px] w-full overflow-hidden flex items-end justify-start group bg-black"
@@ -60,18 +106,18 @@ function hero(resumo) {
             <div class="relative z-10 w-full max-w-7xl mx-auto px-6 pb-20 md:pb-28">
                 <div class="max-w-4xl space-y-6 animate-fade-in">
                     <div
-                        class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md border border-gray-700 text-white font-bold text-xs uppercase tracking-[0.2em] mb-4"
+                        class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md border border-gray-700 text-white font-bold text-[10px] sm:text-xs uppercase tracking-[0.15em] sm:tracking-[0.2em] whitespace-nowrap mb-4"
                     >
                         <span class="w-2 h-2 rounded-full bg-sccp-gold animate-pulse shadow-[0_0_10px_#D4AF37]"></span>
-                        Neo Química Arena
+                        Acervo histórico · Desde 1910
                     </div>
 
                     <h1
-                        class="text-6xl md:text-8xl lg:text-9xl font-display font-black text-white leading-[0.9] tracking-tighter drop-shadow-2xl"
+                        class="${tamanhoTitulo(frase)} font-display font-black text-white leading-[0.9] tracking-tighter drop-shadow-2xl"
                     >
-                        A CASA <br />
+                        ${frase[0]} <br />
                         <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500"
-                            >DO POVO</span
+                            >${frase[1]}</span
                         >
                     </h1>
 

@@ -7,9 +7,9 @@
 
 import { api } from '../core/api.js';
 import { html } from '../core/html.js';
+import { abasAdmin, formLogin, lerToken, salvarToken } from '../components/admin.js';
 import { pageHeader } from '../components/layout.js';
 
-const CHAVE_TOKEN = 'acervo:admin-token';
 const FILTROS = [
     ['aberta', 'Abertas'],
     ['aceita', 'Aceitas'],
@@ -22,40 +22,8 @@ const COR_STATUS = {
     recusada: 'bg-red-600/15 text-red-400 border-red-600/40',
 };
 
-function lerToken() {
-    try {
-        return sessionStorage.getItem(CHAVE_TOKEN) ?? '';
-    } catch {
-        return '';
-    }
-}
-function salvarToken(token) {
-    try {
-        if (token) sessionStorage.setItem(CHAVE_TOKEN, token);
-        else sessionStorage.removeItem(CHAVE_TOKEN);
-    } catch {
-        /* sem armazenamento: pede a senha a cada visita */
-    }
-}
-
 const dataHora = (iso) =>
     new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'America/Sao_Paulo' });
-
-function login(mensagem) {
-    return html`
-        <form id="admin-login" class="max-w-sm bg-sccp-gray border border-gray-800 rounded-xl p-6 space-y-4">
-            <div>
-                <label for="admin-token" class="block text-sm font-bold text-gray-200 mb-1">Senha do painel</label>
-                <input id="admin-token" type="password" autocomplete="current-password" class="form-control" required />
-                <p class="text-xs text-gray-400 mt-2">
-                    É o valor de <code>ADMIN_TOKEN</code> no arquivo .env do servidor.
-                </p>
-            </div>
-            ${mensagem ? html`<p class="text-sm text-red-400" role="alert">${mensagem}</p>` : ''}
-            <button type="submit" class="btn-primary w-full">Entrar</button>
-        </form>
-    `;
-}
 
 function itemCorrecao(c, tipos) {
     const acoes = {
@@ -137,6 +105,7 @@ export default {
             title: 'Correções recebidas',
             content: html`
                 <div class="max-w-4xl mx-auto space-y-8">
+                    ${abasAdmin('correcoes')}
                     ${pageHeader('Correções recebidas', 'Avisos de erro enviados pela torcida.')}
                     <div id="admin-conteudo" class="space-y-6"></div>
                 </div>
@@ -151,7 +120,7 @@ export default {
         let ativo = true;
 
         const mostrarLogin = (mensagem) => {
-            alvo.innerHTML = String(login(mensagem));
+            alvo.innerHTML = String(formLogin(mensagem));
             /** @type {HTMLElement} */ (alvo.querySelector('#admin-token')).focus();
         };
 

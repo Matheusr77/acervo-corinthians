@@ -12,7 +12,7 @@ Portal de estatísticas com a história dos jogos do Sport Club Corinthians Paul
 - **Temporadas**: linha do tempo por década e página de cada ano, com desempenho, competições disputadas, destaques e todos os jogos.
 - **Confrontos**: retrospecto contra cada adversário, com busca, e uma página por confronto.
 - **Hoje na História**: na home e em `/hoje`, os jogos do Corinthians no mesmo dia do ano, com um jogo em destaque (títulos e clássicos têm prioridade) e navegação por qualquer data.
-- **O Timão na sua vida** (`/minha-historia`): o torcedor informa a data de nascimento e vê jogos, vitórias, títulos, clássicos e recordes que viveu, e baixa uma imagem pronta para o story (gerada no navegador, nada é salvo).
+- **O Timão na sua vida** (`/minha-historia`): o torcedor informa a data de nascimento e vê jogos, vitórias, títulos, clássicos e recordes que viveu, e monta uma imagem para compartilhar (gerada no navegador, nada é salvo): 13 modelos de fundo, formatos story, feed e quadrado, destaque à escolha (títulos, clássicos, maior goleada, melhor temporada), frase opcional e até uma foto própria. As fotos dos modelos ficam em `public/assets/img/story/{modelo}.jpg` e podem ser trocadas mantendo o nome (miniaturas em `story/miniaturas/`).
 - **Quiz do Timão** (`/quiz`): 5 perguntas por dia geradas do banco (placar de clássicos e finais, adversário de goleadas, ano de títulos, vitórias numa temporada, rival mais enfrentado na década). A data é a semente do sorteio, então todo mundo recebe as mesmas perguntas no mesmo dia, e o resultado sai em quadradinhos (🟩🟥) para compartilhar.
 - **Fregueses & Tabus** (`/fregueses`): maiores fregueses e carrascos (mínimo de 30 jogos), tabus em andamento contra rivais ainda enfrentados e sequências atuais do time.
 - **Estádios** (`/estadios`): retrospecto em cada um dos estádios, com placar mais comum, adversários mais enfrentados ali, décadas e todos os jogos.
@@ -41,6 +41,10 @@ npm run dev                 # reinicia sozinho ao salvar arquivos do servidor
 ```
 
 Depois é só acessar http://localhost:3000.
+
+### Posts do dia (`/admin/posts`)
+
+Com a mesma senha (`ADMIN_TOKEN`) do painel de correções, a página `/admin/posts` monta imagens e legendas prontas para o X e o Instagram: os jogos do Timão na data escolhida ("Hoje na História") e os títulos que fazem aniversário hoje e nos próximos 7 dias. Cada imagem sai em 1600×900 (X), 1080×1350 (feed) e 1080×1920 (story).
 
 ### Correções da torcida
 
@@ -193,6 +197,8 @@ Fora da API, o servidor também responde `GET /sitemap.xml`, `GET /robots.txt` e
 - **Imagem de prévia**: SVG convertido em PNG no servidor com `@resvg/resvg-js`, usando a fonte Poppins que vem em `server/assets/fonts` (licença OFL, em `OFL.txt`). Cada imagem fica em memória depois de gerada.
 - **Quiz**: as respostas certas vêm junto com as perguntas (a conferência é feita no navegador). Para um quiz casual isso basta; para ranking com prêmio, a correção teria que ir para o servidor.
 - **Mapa**: a base geográfica é gerada uma vez (`npm run mapa:base`) e já vem projetada em coordenadas SVG, então o navegador não carrega nenhuma biblioteca de mapas. Fontes: estados de [giuliano-oliveira/geodata-br-states](https://github.com/giuliano-oliveira/geodata-br-states) (MIT), municípios de [kelvins/municipios-brasileiros](https://github.com/kelvins/municipios-brasileiros) (MIT, dados do IBGE), países do Natural Earth via `world-atlas` (domínio público) e nomes em português do `i18n-iso-countries` (MIT). Cidades com nome antigo ou grafia diferente no banco (Taguatinga, Campos, "Dourado"…) são ligadas ao município certo em `server/services/mapaService.js`.
+- **Redes e contato**: o @ do X e do Instagram e o e-mail de contato ficam em `public/assets/js/components/redes.js` (rodapé e página Sobre).
+- **Título da home**: sorteado a cada visita entre as frases da lista `FRASES` em `views/home.js`, sem repetir a anterior.
 - **Menu**: as páginas ficam numa lista só (`public/assets/js/components/navegacao.js`), agrupadas em Arquivo, Rivais, Números e Torcida. Dela saem o menu lateral do computador (só ícones em telas médias, ícone + nome em telas grandes), o menu do celular e o bloco "Tudo no acervo" da home. Página nova no menu = uma linha nessa lista.
 - **Tema**: as cores ficam em variáveis CSS (`src/styles/main.css`); o tema claro inverte a escala de cinzas e escurece o dourado para manter o contraste. Um script pequeno no `<head>` aplica o tema salvo antes da página aparecer, para não piscar.
 - **Escalações, gols e lances** ainda não existem no banco. Quando essas tabelas forem criadas, a página de detalhes pode ganhar essas seções.
