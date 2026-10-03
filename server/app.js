@@ -92,6 +92,14 @@ export function createApp() {
         express.static(config.paths.public, {
             maxAge: config.isProduction ? '7d' : 0,
             index: false, // o index.html é servido abaixo, com as meta tags da rota
+            setHeaders(res, caminho) {
+                // Código (JS, CSS, JSON) não tem versão no nome do arquivo: o navegador
+                // confere a cada visita se mudou (resposta 304, rápida, quando não mudou).
+                // Assim uma atualização do site aparece na hora para todo mundo.
+                if (/\.(js|css|json|webmanifest)$/i.test(caminho)) {
+                    res.setHeader('Cache-Control', 'no-cache');
+                }
+            },
         }),
     );
 
