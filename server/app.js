@@ -14,8 +14,15 @@ import apiRoutes from './routes/index.js';
 import * as seo from './services/seoService.js';
 import { imagemDoJogo } from './services/ogImageService.js';
 
-/** Origens do Umami (estatísticas de visitas), liberadas só quando ele está configurado. */
-const UMAMI = config.umamiId ? ['https://cloud.umami.is', 'https://api-gateway.umami.dev'] : [];
+/**
+ * Umami (estatísticas de visitas), liberado só quando está configurado:
+ * o script vem de cloud.umami.is e as visitas vão para gateway.umami.is
+ * (os outros dois são endereços de envio usados em versões anteriores do script).
+ */
+const UMAMI_SCRIPT_SRC = config.umamiId ? ['https://cloud.umami.is'] : [];
+const UMAMI_CONNECT_SRC = config.umamiId
+    ? ['https://gateway.umami.is', 'https://cloud.umami.is', 'https://api-gateway.umami.dev']
+    : [];
 
 export function createApp() {
     const app = express();
@@ -27,7 +34,7 @@ export function createApp() {
             contentSecurityPolicy: {
                 directives: {
                     defaultSrc: ["'self'"],
-                    scriptSrc: ["'self'", ...UMAMI.slice(0, 1)],
+                    scriptSrc: ["'self'", ...UMAMI_SCRIPT_SRC],
                     styleSrc: ["'self'", 'https://fonts.googleapis.com'],
                     // Larguras das barras de progresso são definidas via atributo style
                     styleSrcAttr: ["'unsafe-inline'"],
@@ -39,7 +46,7 @@ export function createApp() {
                         'https://images.unsplash.com',
                         'https://plus.unsplash.com',
                     ],
-                    connectSrc: ["'self'", ...UMAMI],
+                    connectSrc: ["'self'", ...UMAMI_CONNECT_SRC],
                     objectSrc: ["'none'"],
                     upgradeInsecureRequests: config.isProduction ? [] : null,
                 },
