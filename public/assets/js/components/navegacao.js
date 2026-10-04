@@ -62,6 +62,12 @@ export const SECOES = [
             { href: '/hoje', nav: 'hoje', titulo: 'Hoje na História', descricao: 'O que o Timão fez nesta data' },
             { href: '/quiz', nav: 'quiz', titulo: 'Quiz do Timão', descricao: '5 perguntas novas todo dia' },
             {
+                href: '/penaltis',
+                nav: 'penaltis',
+                titulo: 'Disputa de Pênaltis',
+                descricao: 'Bata e defenda contra os rivais',
+            },
+            {
                 href: '/minha-historia',
                 nav: 'minha-historia',
                 titulo: 'O Timão na sua vida',
@@ -91,6 +97,8 @@ export const ICONES = {
     '/hoje': 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z',
     '/quiz':
         'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+    '/penaltis':
+        'M12 21a9 9 0 100-18 9 9 0 000 18zm0-13l3.8 2.8-1.45 4.45h-4.7L8.2 10.8 12 8zm0 0V3.5m3.8 7.3l4.6-1.5m-6.05 5.95l2.85 3.9m-7.5-3.9L6.85 19.2M8.2 10.8L3.6 9.3',
     '/minha-historia':
         'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
     '/': 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',

@@ -26,6 +26,7 @@ import jogos from './views/jogos.js';
 import mapa from './views/mapa.js';
 import minhaHistoria from './views/minhaHistoria.js';
 import naoEncontrado from './views/naoEncontrado.js';
+import penaltis from './views/penaltis.js';
 import quiz from './views/quiz.js';
 import sobre from './views/sobre.js';
 import temporadaDetalhe from './views/temporadaDetalhe.js';
@@ -47,6 +48,7 @@ const ROUTES = [
     { path: '/titulos', view: titulos, nav: 'titulos' },
     { path: '/hoje', view: hoje, nav: 'hoje' },
     { path: '/quiz', view: quiz, nav: 'quiz' },
+    { path: '/penaltis', view: penaltis, nav: 'penaltis' },
     { path: '/fregueses', view: fregueses, nav: 'fregueses' },
     { path: '/estadios', view: estadios, nav: 'estadios' },
     { path: '/mapa', view: mapa, nav: 'mapa' },
