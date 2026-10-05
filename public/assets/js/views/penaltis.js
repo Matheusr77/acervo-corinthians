@@ -1,78 +1,71 @@
 /**
  * Disputa de Pênaltis (/penaltis): minigame contra Palmeiras, São Paulo ou Santos.
- * O Corinthians bate primeiro; você escolhe o canto do chute e, na vez do rival,
- * para onde o goleiro pula. Regras e sorteios em utils/penaltis.js.
  *
- * O retrospecto (vitórias e derrotas por rival) fica só no navegador
- * (localStorage); sem ele, o jogo funciona normalmente.
+ * Na sua cobrança: toque no gol para mirar e toque de novo para parar a barra
+ * de força. Na do rival: toque no gol para escolher para onde o goleiro pula.
+ * Regras em utils/penaltis.js, desenho em components/penaltisCena.js e sons em
+ * utils/penaltisSom.js.
+ *
+ * O retrospecto (vitórias e derrotas por rival) e a preferência de som ficam
+ * só no navegador (localStorage); sem ele, o jogo funciona normalmente.
  */
 
 import { html } from '../core/html.js';
 import { botaoCompartilhar, ligarCompartilhar } from '../components/compartilhar.js';
 import { pageHeader } from '../components/layout.js';
-import { NOMES_ZONA, chuteCpu, cobranca, coluna, emojis, linha, puloCpu, vencedor } from '../utils/penaltis.js';
+import { criarCena } from '../components/penaltisCena.js';
+import {
+    FORCA_IDEAL,
+    chuteCpu,
+    emojis,
+    forcaNoTempo,
+    puloCpu,
+    resultadoCobranca,
+    trajetoria,
+    vencedor,
+} from '../utils/penaltis.js';
+import { criarSom } from '../utils/penaltisSom.js';
 
-const RIVAIS = {
-    palmeiras: { nome: 'Palmeiras', classico: 'Derby', camisa: '#0f7a3c', detalhe: '#ffffff' },
-    'sao-paulo': { nome: 'São Paulo', classico: 'Majestoso', camisa: '#f5f5f5', detalhe: '#d6001c' },
-    santos: { nome: 'Santos', classico: 'Clássico Alvinegro', camisa: '#f5f5f5', detalhe: '#111111' },
+/** Uniformes (só cores; nada de escudos). */
+const TIMAO = {
+    batedor: { camisa: '#f4f4f4', numero: '#111111', calcao: '#111111', meiao: '#111111', nome: 'FIEL', num: '10' },
+    goleiro: { camisa: '#1f1f1f', detalhe: '#d4af37', calcao: '#111111', meiao: '#1f1f1f' },
 };
-const GOLEIRO_TIMAO = { camisa: '#161616', detalhe: '#ffffff' };
+const RIVAIS = {
+    palmeiras: {
+        nome: 'Palmeiras',
+        classico: 'Derby',
+        batedor: {
+            camisa: '#0f7a3c',
+            numero: '#ffffff',
+            calcao: '#f4f4f4',
+            meiao: '#0f7a3c',
+            nome: 'SEM',
+            num: 'MUNDIAL',
+        },
+        goleiro: { camisa: '#2a3f94', detalhe: '#ffffff', calcao: '#1b2a66', meiao: '#2a3f94' },
+    },
+    'sao-paulo': {
+        nome: 'São Paulo',
+        classico: 'Majestoso',
+        batedor: {
+            camisa: '#f5f5f5',
+            faixa: ['#d6001c', '#f5f5f5', '#111111'],
+            numero: '#111111',
+            calcao: '#f5f5f5',
+            meiao: '#f5f5f5',
+            num: '9',
+        },
+        goleiro: { camisa: '#e8661c', detalhe: '#111111', calcao: '#111111', meiao: '#e8661c' },
+    },
+    santos: {
+        nome: 'Santos',
+        classico: 'Clássico Alvinegro',
+        batedor: { camisa: '#f5f5f5', numero: '#111111', calcao: '#f5f5f5', meiao: '#f5f5f5', num: '9' },
+        goleiro: { camisa: '#5a36a6', detalhe: '#ffffff', calcao: '#2b1a55', meiao: '#5a36a6' },
+    },
+};
 const CHAVE_RETROSPECTO = 'acervo:penaltis';
-
-/* ---------- posições na tela (em % do campo) ---------- */
-
-const X_COLUNA = [24.7, 50, 75.3];
-const Y_LINHA = [27, 53];
-const GOLEIRO_INICIO = { left: 50, top: 32, giro: 0 };
-
-/** Para onde o goleiro vai em cada zona. */
-function posicaoGoleiro(z) {
-    const c = coluna(z);
-    const alto = linha(z) === 0;
-    if (c === 1) return { left: 50, top: alto ? 17 : 34, giro: 0 };
-    const lado = c === 0 ? -1 : 1;
-    return { left: 50 + lado * 21, top: alto ? 18 : 40, giro: lado * (alto ? 55 : 80) };
-}
-
-/** Onde a bola termina, conforme o resultado. */
-function posicaoBola(z, resultado) {
-    const c = coluna(z);
-    const alto = linha(z) === 0;
-    if (resultado === 'fora') {
-        if (alto) return { left: X_COLUNA[c] + (c - 1) * 6, top: 5, escala: 0.55 };
-        return { left: c === 0 ? 6 : c === 2 ? 94 : 50, top: c === 1 ? 5 : 55, escala: 0.6 };
-    }
-    if (resultado === 'trave') {
-        if (c === 1) return { left: 50, top: 14, escala: 0.6 }; // travessão
-        return { left: c === 0 ? 12.5 : 87.5, top: Y_LINHA[linha(z)], escala: 0.6 };
-    }
-    return { left: X_COLUNA[c], top: Y_LINHA[linha(z)], escala: 0.6 };
-}
-
-/* ---------- desenhos ---------- */
-
-const BOLA = html`<svg viewBox="0 0 40 40" aria-hidden="true">
-    <circle cx="20" cy="20" r="19" fill="#fafafa" stroke="#222" stroke-width="1.5" />
-    <polygon points="20,12 27,17 24.5,25 15.5,25 13,17" fill="#1a1a1a" />
-    <path d="M20 12V3M27 17l8-3M24.5 25l5 7M15.5 25l-5 7M13 17l-8-3" stroke="#1a1a1a" stroke-width="1.5" fill="none" />
-</svg>`;
-
-/** Goleiro de frente, braços abertos. */
-function goleiro({ camisa, detalhe }) {
-    return html`<svg viewBox="0 0 60 110" aria-hidden="true">
-        <rect x="21" y="74" width="7" height="30" rx="3" fill="#2a2a2a" />
-        <rect x="32" y="74" width="7" height="30" rx="3" fill="#2a2a2a" />
-        <rect x="18" y="58" width="24" height="18" rx="4" fill="#111" />
-        <rect x="2" y="25" width="17" height="8" rx="4" fill="${camisa}" transform="rotate(-25 17 29)" />
-        <rect x="41" y="25" width="17" height="8" rx="4" fill="${camisa}" transform="rotate(25 43 29)" />
-        <circle cx="5" cy="21" r="5" fill="#d4d4d4" />
-        <circle cx="55" cy="21" r="5" fill="#d4d4d4" />
-        <rect x="16" y="22" width="28" height="38" rx="7" fill="${camisa}" stroke="rgba(0,0,0,.35)" />
-        <rect x="16" y="36" width="28" height="6" fill="${detalhe}" />
-        <circle cx="30" cy="12" r="9" fill="#b98258" />
-    </svg>`;
-}
 
 /* ---------- retrospecto (localStorage) ---------- */
 
@@ -116,7 +109,9 @@ function telaEscolha() {
                         >
                             <span
                                 class="block h-1.5 w-12 rounded-full mb-4"
-                                style="background: linear-gradient(90deg, ${r.camisa} 50%, ${r.detalhe} 50%)"
+                                style="background: linear-gradient(90deg, ${r.batedor.camisa} 50%, ${
+                                    r.batedor.faixa?.[0] ?? r.batedor.calcao
+                                } 50%)"
                             ></span>
                             <span class="block text-xs font-bold uppercase tracking-[0.2em] text-sccp-gold"
                                 >${r.classico}</span
@@ -130,6 +125,18 @@ function telaEscolha() {
                 )}
             </div>
             <button type="button" data-rival="sortear" class="btn-ghost text-sm">🎲 Sortear o rival</button>
+            <div class="bg-sccp-gray border border-gray-800 rounded-xl p-5 text-sm text-gray-400 space-y-2">
+                <p class="font-bold text-white">Como jogar</p>
+                <p>
+                    ⚽ <strong class="text-gray-200">Sua cobrança:</strong> toque no gol para mirar e toque de novo para
+                    parar a barra de força. Na faixa verde, a bola vai onde você mirou. Forte demais, ela sobe; fraca
+                    demais, o goleiro chega.
+                </p>
+                <p>
+                    🧤 <strong class="text-gray-200">Cobrança do rival:</strong> toque no gol para escolher para onde o
+                    seu goleiro pula.
+                </p>
+            </div>
         </div>
     `;
 }
@@ -162,33 +169,30 @@ function placar(rival, nossos, deles) {
     `;
 }
 
-function telaJogo() {
+function telaJogo(somLigado) {
     return html`
         <div class="space-y-4">
             <div id="penaltis-placar"></div>
-            <p id="penaltis-instrucao" class="text-center font-bold text-white min-h-[1.5rem]" aria-live="polite"></p>
-            <div class="penaltis-campo" id="penaltis-campo">
-                <div class="penaltis-gol"></div>
-                <div class="penaltis-linha"></div>
-                <div class="penaltis-marca"></div>
-                <div class="penaltis-goleiro" id="penaltis-goleiro"></div>
-                <div class="penaltis-bola" id="penaltis-bola">${BOLA}</div>
-                <div class="penaltis-zonas" id="penaltis-zonas">
-                    ${NOMES_ZONA.map(
-                        (nome, z) =>
-                            html`<button
-                                type="button"
-                                class="penaltis-zona"
-                                data-zona="${z}"
-                                aria-label="${nome}"
-                            ></button>`,
-                    )}
-                </div>
+            <div class="flex items-center justify-between gap-3 min-h-[2.5rem]">
+                <p id="penaltis-instrucao" class="font-bold text-white" aria-live="polite"></p>
+                <button
+                    type="button"
+                    data-acao="som"
+                    class="btn-ghost text-sm whitespace-nowrap"
+                    aria-pressed="${somLigado}"
+                >
+                    ${somLigado ? '🔊 Som' : '🔇 Som'}
+                </button>
+            </div>
+            <div class="penaltis-palco">
+                <canvas
+                    id="penaltis-canvas"
+                    class="penaltis-canvas"
+                    role="img"
+                    aria-label="Gol, goleiro e batedor. Toque no gol para jogar."
+                ></canvas>
                 <div class="penaltis-aviso" id="penaltis-aviso"></div>
             </div>
-            <p class="text-center text-xs text-gray-400">
-                Mirar no ângulo é mais difícil de defender, mas a bola pode ir para fora.
-            </p>
         </div>
     `;
 }
@@ -224,6 +228,8 @@ function telaFim(rival, nossos, deles, retro) {
     `;
 }
 
+const AVISOS = { gol: 'GOOOL!', defesa: 'DEFENDEU!', fora: 'PRA FORA!', trave: 'NA TRAVE!' };
+
 /* ---------- view ---------- */
 
 export default {
@@ -234,7 +240,7 @@ export default {
                 <div class="max-w-3xl mx-auto space-y-8">
                     ${pageHeader(
                         'Disputa de Pênaltis',
-                        'Bata e defenda contra os rivais. Escolha o canto do chute e, na vez deles, para onde o goleiro pula.',
+                        'Bata e defenda contra os rivais. Mire, acerte a força e escolha o canto do goleiro.',
                     )}
                     <div id="penaltis-app">${telaEscolha()}</div>
                 </div>
@@ -244,98 +250,109 @@ export default {
 
     mount(root) {
         const app = /** @type {HTMLElement} */ (root.querySelector('#penaltis-app'));
-        /** @type {ReturnType<typeof setTimeout>[]} */
-        const timers = [];
-        const esperar = (ms) => new Promise((ok) => timers.push(setTimeout(ok, ms)));
+        const som = criarSom();
+        /** @type {ReturnType<typeof criarCena> | null} */
+        let cena = null;
 
         let rival = 'palmeiras';
         /** @type {boolean[]} */ let nossos = [];
         /** @type {boolean[]} */ let deles = [];
-        let ocupado = false;
-        let rodada = 0; // invalida animações de uma partida anterior
+        let partida = 0; // invalida o que sobrou de uma partida anterior
+        /** @type {import('../utils/penaltis.js').Ponto | null} */ let mira = null;
 
         const $ = (sel) => /** @type {HTMLElement} */ (app.querySelector(sel));
         const nossaVez = () => nossos.length === deles.length;
+        const instrucao = (texto) => {
+            const el = app.querySelector('#penaltis-instrucao');
+            if (el) el.textContent = texto;
+        };
 
-        function posicionar(el, { left, top }, transform) {
-            el.style.left = `${left}%`;
-            el.style.top = `${top}%`;
-            el.style.transform = transform;
-        }
-
-        /** Volta bola e goleiro ao lugar, sem animação. */
-        function resetarCampo() {
-            const campo = $('#penaltis-campo');
-            campo.classList.add('penaltis-sem-transicao');
-            const cores = nossaVez() ? RIVAIS[rival] : GOLEIRO_TIMAO;
-            $('#penaltis-goleiro').innerHTML = String(goleiro(cores));
-            posicionar($('#penaltis-goleiro'), GOLEIRO_INICIO, 'translateX(-50%) rotate(0deg)');
-            posicionar($('#penaltis-bola'), { left: 50, top: 84 }, 'translate(-50%, -50%) scale(1)');
-            $('#penaltis-aviso').removeAttribute('data-visivel');
-            void campo.offsetHeight; // aplica antes de religar as transições
-            campo.classList.remove('penaltis-sem-transicao');
-        }
-
-        function atualizarPlacar() {
-            $('#penaltis-placar').innerHTML = String(placar(rival, nossos, deles));
+        function desligarCena() {
+            cena?.destruir();
+            cena = null;
         }
 
         function prepararCobranca() {
-            atualizarPlacar();
-            resetarCampo();
-            const morteSubita = nossos.length >= 5 && deles.length >= 5;
-            const prefixo = morteSubita ? 'Morte súbita! ' : '';
-            $('#penaltis-instrucao').textContent = nossaVez()
-                ? `${prefixo}Sua vez de bater: escolha o canto.`
-                : `${prefixo}Agora defenda: escolha para onde o goleiro pula.`;
-            $('#penaltis-zonas').removeAttribute('data-travado');
-            ocupado = false;
+            $('#penaltis-placar').innerHTML = String(placar(rival, nossos, deles));
+            $('#penaltis-aviso').removeAttribute('data-visivel');
+            const morteSubita = nossos.length >= 5 && deles.length >= 5 ? 'Morte súbita! ' : '';
+            mira = null;
+            if (nossaVez()) {
+                cena?.trocarKits({ batedor: TIMAO.batedor, goleiro: RIVAIS[rival].goleiro });
+                cena?.esperar('mirar');
+                instrucao(`${morteSubita}Sua vez: toque no gol para mirar.`);
+            } else {
+                cena?.trocarKits({ batedor: RIVAIS[rival].batedor, goleiro: TIMAO.goleiro });
+                cena?.esperar('pular');
+                instrucao(`${morteSubita}Defenda: toque onde o goleiro vai pular.`);
+            }
         }
 
         function novaPartida(slug) {
             rival = slug === 'sortear' ? Object.keys(RIVAIS)[Math.floor(Math.random() * 3)] : slug;
             nossos = [];
             deles = [];
-            rodada++;
-            app.innerHTML = String(telaJogo());
+            partida++;
+            desligarCena();
+            app.innerHTML = String(telaJogo(som.ligado));
+            cena = criarCena(/** @type {HTMLCanvasElement} */ ($('#penaltis-canvas')), {
+                forcaNoTempo,
+                faixaIdeal: FORCA_IDEAL,
+                aoMirar(p) {
+                    if (nossaVez()) {
+                        mira = p;
+                        cena?.pedirForca();
+                        instrucao('Toque de novo para chutar: pare a barra no verde.');
+                    } else {
+                        cobrar(chuteCpu(), p);
+                    }
+                },
+                aoChutar(forca) {
+                    if (mira) cobrar({ mira, forca }, puloCpu());
+                },
+            });
+            som.ambiente();
             prepararCobranca();
             $('#penaltis-placar').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        async function cobrar(zonaEscolhida) {
-            if (ocupado) return;
-            ocupado = true;
-            const minhaRodada = rodada;
-            $('#penaltis-zonas').setAttribute('data-travado', '');
-            $('#penaltis-instrucao').textContent = '';
-
+        /**
+         * @param {{ mira: import('../utils/penaltis.js').Ponto, forca: number }} batida
+         * @param {import('../utils/penaltis.js').Ponto} pulo
+         */
+        async function cobrar(batida, pulo) {
+            if (!cena) return;
+            const minha = partida;
             const batendo = nossaVez();
-            const chute = batendo ? zonaEscolhida : chuteCpu();
-            const pulo = batendo ? puloCpu() : zonaEscolhida;
-            const resultado = cobranca(chute, pulo);
+            const chute = trajetoria(batida.mira, batida.forca);
+            const resultado = resultadoCobranca(chute, pulo, batida.forca);
             const fezGol = resultado === 'gol';
+            const bomProTimao = batendo === fezGol;
+            instrucao(batendo ? 'Lá vai…' : 'Lá vem o chute…');
+            som.apito();
 
-            const bola = posicaoBola(chute, resultado);
-            posicionar($('#penaltis-bola'), bola, `translate(-50%, -50%) scale(${bola.escala})`);
-            await esperar(70);
-            const g = posicaoGoleiro(pulo);
-            posicionar($('#penaltis-goleiro'), g, `translateX(-50%) rotate(${g.giro}deg)`);
-            await esperar(480);
-            if (minhaRodada !== rodada) return;
-
-            const aviso = $('#penaltis-aviso');
-            const bom = batendo === fezGol; // bom para o Timão
-            aviso.textContent = { gol: 'GOOOL!', defesa: 'DEFENDEU!', fora: 'PRA FORA!', trave: 'NA TRAVE!' }[
-                resultado
-            ];
-            aviso.dataset.tipo = bom ? 'gol' : 'ruim';
-            aviso.setAttribute('data-visivel', '');
-
-            (batendo ? nossos : deles).push(fezGol);
-            atualizarPlacar();
-            await esperar(1300);
-            if (minhaRodada !== rodada) return;
-
+            await cena.cobrar({
+                chute,
+                pulo,
+                resultado,
+                comemora: bomProTimao,
+                aoChutar: () => som.chute(),
+                aoChegar: () => {
+                    if (minha !== partida) return;
+                    if (resultado === 'gol') som.rede();
+                    if (resultado === 'trave') som.trave();
+                    if (resultado === 'defesa') som.defesa();
+                    if (bomProTimao) som.festa();
+                    else som.lamento();
+                    const aviso = $('#penaltis-aviso');
+                    aviso.textContent = AVISOS[resultado];
+                    aviso.dataset.tipo = bomProTimao ? 'gol' : 'ruim';
+                    aviso.setAttribute('data-visivel', '');
+                    (batendo ? nossos : deles).push(fezGol);
+                    $('#penaltis-placar').innerHTML = String(placar(rival, nossos, deles));
+                },
+            });
+            if (minha !== partida) return;
             if (vencedor(nossos, deles)) terminar();
             else prepararCobranca();
         }
@@ -343,6 +360,7 @@ export default {
         function terminar() {
             const ganhou = vencedor(nossos, deles) === 'corinthians';
             const retro = somarRetrospecto(rival, ganhou);
+            desligarCena();
             app.innerHTML = String(
                 html`${placar(rival, nossos, deles)}
                     <div class="mt-6">${telaFim(rival, nossos, deles, retro)}</div>`,
@@ -362,19 +380,24 @@ export default {
             const alvo = /** @type {HTMLElement} */ (e.target);
             const botaoRival = alvo.closest('[data-rival]');
             if (botaoRival) return novaPartida(botaoRival.getAttribute('data-rival') ?? 'palmeiras');
-            const zona = alvo.closest('[data-zona]');
-            if (zona) return cobrar(Number(zona.getAttribute('data-zona')));
-            const acao = alvo.closest('[data-acao]')?.getAttribute('data-acao');
+            const botao = alvo.closest('[data-acao]');
+            const acao = botao?.getAttribute('data-acao');
+            if (acao === 'som' && botao) {
+                const ligado = som.alternar();
+                botao.textContent = ligado ? '🔊 Som' : '🔇 Som';
+                botao.setAttribute('aria-pressed', String(ligado));
+            }
             if (acao === 'revanche') return novaPartida(rival);
             if (acao === 'trocar') {
-                rodada++;
+                partida++;
                 app.innerHTML = String(telaEscolha());
             }
         });
 
         return () => {
-            rodada++;
-            timers.forEach(clearTimeout);
+            partida++;
+            desligarCena();
+            som.parar();
         };
     },
 };

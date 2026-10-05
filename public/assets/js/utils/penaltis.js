@@ -1,67 +1,92 @@
 /**
  * Regras da Disputa de Pênaltis (sem DOM, para dar para testar).
  *
- * O gol é dividido em 6 zonas: 3 colunas (0 esquerda, 1 meio, 2 direita)
- * × 2 linhas (0 alto, 1 baixo). Zona = linha * 3 + coluna.
+ * Posições no gol em coordenadas normalizadas:
+ *   u = 0 trave esquerda … 1 trave direita
+ *   v = 0 travessão … 1 chão
+ * Fora desse intervalo, a bola saiu.
  */
 
-export const ZONAS = [0, 1, 2, 3, 4, 5];
-export const NOMES_ZONA = [
-    'Ângulo esquerdo',
-    'Alto, no meio',
-    'Ângulo direito',
-    'Baixo, à esquerda',
-    'Rasteiro, no meio',
-    'Baixo, à direita',
-];
+/** @typedef {{ u: number, v: number }} Ponto */
+/** @typedef {'gol' | 'defesa' | 'fora' | 'trave'} Resultado */
 
-export const coluna = (z) => z % 3;
-export const linha = (z) => Math.floor(z / 3);
+/** Força ideal do chute (barra verde). Acima: bola sobe. Abaixo: bola fraca. */
+export const FORCA_IDEAL = { min: 0.5, max: 0.78 };
+const FORCA_FRACA = 0.32;
+/** Espessura da trave/travessão, em unidades do gol. */
+const TRAVE = 0.022;
+const TRAVESSAO = 0.035;
+/** Alcance do goleiro (meio-eixos da elipse em torno do ponto do pulo). */
+const ALCANCE = { u: 0.16, v: 0.46 };
+const ALCANCE_PARADO = { u: 0.12, v: 0.5 };
+/** O goleiro não alcança o rente da trave nem pula para fora do gol. */
+const PULO_MIN = 0.12;
+const PULO_MAX = 0.88;
 
-/** Chance de a bola ir para fora ou na trave, por zona (mirar no ângulo é arriscado). */
-const CHANCE_ERRO = [0.17, 0.09, 0.17, 0.06, 0.02, 0.06];
-/** No ângulo, mesmo pulando certo, o goleiro nem sempre alcança. */
-const ALCANCE_ANGULO = 0.7;
-
-/** Onde o batedor do computador costuma bater (mais nos cantos de baixo). */
-const PESO_CHUTE_CPU = [0.14, 0.12, 0.14, 0.22, 0.16, 0.22];
-/** Para onde o goleiro do computador costuma pular (mais nos cantos de baixo). */
-const PESO_PULO_CPU = [0.15, 0.1, 0.15, 0.24, 0.12, 0.24];
+const limitar = (x, min, max) => Math.min(max, Math.max(min, x));
+/** Número aproximadamente normal (média 0, desvio 1). */
+const normal = (aleatorio) => (aleatorio() + aleatorio() + aleatorio() - 1.5) * 2;
 
 /**
- * Sorteia uma zona com pesos.
- * @param {number[]} pesos
+ * Onde a bola vai de fato, a partir da mira e da força.
+ * @param {Ponto} mira
+ * @param {number} forca - 0 a 1 (posição em que a barra parou)
  * @param {() => number} [aleatorio]
+ * @returns {Ponto}
  */
-export function sortearZona(pesos, aleatorio = Math.random) {
-    const total = pesos.reduce((a, b) => a + b, 0);
-    let r = aleatorio() * total;
-    for (let z = 0; z < pesos.length; z++) {
-        r -= pesos[z];
-        if (r < 0) return z;
-    }
-    return pesos.length - 1;
+export function trajetoria(mira, forca, aleatorio = Math.random) {
+    const foraDaFaixa =
+        forca > FORCA_IDEAL.max ? forca - FORCA_IDEAL.max : forca < FORCA_IDEAL.min ? FORCA_IDEAL.min - forca : 0;
+    const erro = 0.035 + foraDaFaixa * 0.5;
+    const subida = forca > FORCA_IDEAL.max ? (forca - FORCA_IDEAL.max) * 1.6 : 0;
+    return {
+        u: mira.u + normal(aleatorio) * erro,
+        v: Math.min(0.97, mira.v + normal(aleatorio) * erro * 0.8 - subida),
+    };
 }
-
-export const chuteCpu = (aleatorio = Math.random) => sortearZona(PESO_CHUTE_CPU, aleatorio);
-export const puloCpu = (aleatorio = Math.random) => sortearZona(PESO_PULO_CPU, aleatorio);
 
 /**
- * Resultado de uma cobrança.
- * @param {number} chute - zona onde a bola foi
- * @param {number} pulo - zona para onde o goleiro pulou
- * @param {() => number} [aleatorio]
- * @returns {'gol' | 'defesa' | 'fora' | 'trave'}
+ * Resultado da cobrança.
+ * @param {Ponto} bola - onde a bola cruza a linha do gol (saída de trajetoria)
+ * @param {Ponto} pulo - para onde o goleiro pulou
+ * @param {number} forca
+ * @returns {Resultado}
  */
-export function cobranca(chute, pulo, aleatorio = Math.random) {
-    if (aleatorio() < CHANCE_ERRO[chute]) return aleatorio() < 0.5 ? 'trave' : 'fora';
-    const mesmaColuna = coluna(chute) === coluna(pulo);
-    // No meio, o goleiro alcança alto e baixo; nos lados, precisa acertar a altura
-    const alcancou = mesmaColuna && (coluna(chute) === 1 || linha(chute) === linha(pulo));
-    if (!alcancou) return 'gol';
-    const angulo = linha(chute) === 0 && coluna(chute) !== 1;
-    return angulo && aleatorio() >= ALCANCE_ANGULO ? 'gol' : 'defesa';
+export function resultadoCobranca(bola, pulo, forca) {
+    const { u, v } = bola;
+    if (u < -TRAVE || u > 1 + TRAVE || v < -TRAVESSAO) return 'fora';
+    if (u <= TRAVE || u >= 1 - TRAVE || v <= TRAVESSAO) return 'trave';
+
+    const p = { u: limitar(pulo.u, PULO_MIN, PULO_MAX), v: limitar(pulo.v, 0.15, 0.95) };
+    const parado = Math.abs(p.u - 0.5) < 0.08;
+    const base = parado ? ALCANCE_PARADO : ALCANCE;
+    const fator = forca < FORCA_FRACA ? 1.4 : 1; // bola fraca dá tempo ao goleiro
+    const du = (u - p.u) / (base.u * fator);
+    const dv = (v - p.v) / (base.v * fator);
+    return du * du + dv * dv <= 1 ? 'defesa' : 'gol';
 }
+
+/** Batida do computador: escolhe um canto (às vezes o meio) e uma força. */
+export function chuteCpu(aleatorio = Math.random) {
+    const r = aleatorio();
+    const u = r < 0.42 ? 0.06 + aleatorio() * 0.22 : r < 0.84 ? 0.72 + aleatorio() * 0.22 : 0.38 + aleatorio() * 0.24;
+    const v = 0.12 + aleatorio() * 0.8;
+    const forca = aleatorio() < 0.12 ? 0.8 + aleatorio() * 0.15 : 0.45 + aleatorio() * 0.33;
+    return { mira: { u, v }, forca };
+}
+
+/** Pulo do goleiro do computador: escolhe um lado (às vezes fica no meio). */
+export function puloCpu(aleatorio = Math.random) {
+    const r = aleatorio();
+    const u = r < 0.45 ? 0.14 + aleatorio() * 0.2 : r < 0.9 ? 0.66 + aleatorio() * 0.2 : 0.5;
+    return { u, v: 0.3 + aleatorio() * 0.5 };
+}
+
+/**
+ * Força da barra no instante t (vai e volta, ~1,1 s por ciclo).
+ * @param {number} ms - tempo desde que a barra apareceu
+ */
+export const forcaNoTempo = (ms) => (1 - Math.cos((ms / 1100) * Math.PI * 2)) / 2;
 
 /**
  * A disputa acabou? Segue a regra oficial: 5 cobranças para cada lado

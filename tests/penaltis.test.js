@@ -1,52 +1,68 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { chuteCpu, cobranca, emojis, puloCpu, sortearZona, vencedor } from '../public/assets/js/utils/penaltis.js';
+import {
+    FORCA_IDEAL,
+    chuteCpu,
+    emojis,
+    forcaNoTempo,
+    puloCpu,
+    resultadoCobranca,
+    trajetoria,
+    vencedor,
+} from '../public/assets/js/utils/penaltis.js';
 
-/** Gerador previsível (sempre devolve os valores em sequência). */
-const seq = (...valores) => {
-    let i = 0;
-    return () => valores[i++ % valores.length];
-};
+/** "Aleatório" fixo em 0,5: sem erro na trajetória. */
+const meio = () => 0.5;
+const FORCA_BOA = (FORCA_IDEAL.min + FORCA_IDEAL.max) / 2;
 
-describe('pênaltis: cobrança', () => {
-    it('goleiro no canto errado = gol', () => {
-        assert.equal(cobranca(3, 5, seq(0.9)), 'gol');
+describe('pênaltis: trajetória', () => {
+    it('força na faixa verde: a bola vai onde mirou', () => {
+        const b = trajetoria({ u: 0.2, v: 0.6 }, FORCA_BOA, meio);
+        assert.ok(Math.abs(b.u - 0.2) < 1e-9 && Math.abs(b.v - 0.6) < 1e-9);
     });
-    it('goleiro no mesmo canto de baixo = defesa', () => {
-        assert.equal(cobranca(3, 3, seq(0.9)), 'defesa');
+    it('forte demais: a bola sobe', () => {
+        const b = trajetoria({ u: 0.2, v: 0.3 }, 1, meio);
+        assert.ok(b.v < 0, `v ${b.v}`);
     });
-    it('no meio, o goleiro alcança alto e baixo', () => {
-        assert.equal(cobranca(1, 4, seq(0.9)), 'defesa');
-        assert.equal(cobranca(4, 1, seq(0.9)), 'defesa');
+    it('barra de força vai e volta', () => {
+        assert.equal(forcaNoTempo(0), 0);
+        assert.ok(Math.abs(forcaNoTempo(550) - 1) < 1e-9);
+        assert.ok(forcaNoTempo(1100) < 1e-9);
     });
-    it('nos lados precisa acertar a altura', () => {
-        assert.equal(cobranca(0, 3, seq(0.9)), 'gol');
+});
+
+describe('pênaltis: resultado', () => {
+    it('goleiro do outro lado = gol', () => {
+        assert.equal(resultadoCobranca({ u: 0.15, v: 0.7 }, { u: 0.8, v: 0.5 }, FORCA_BOA), 'gol');
     });
-    it('no ângulo o goleiro às vezes não alcança', () => {
-        assert.equal(cobranca(0, 0, seq(0.9, 0.5)), 'defesa');
-        assert.equal(cobranca(0, 0, seq(0.9, 0.8)), 'gol');
+    it('goleiro no mesmo canto = defesa', () => {
+        assert.equal(resultadoCobranca({ u: 0.2, v: 0.6 }, { u: 0.22, v: 0.6 }, FORCA_BOA), 'defesa');
     });
-    it('chute pode ir para fora ou na trave', () => {
-        assert.equal(cobranca(0, 5, seq(0.01, 0.2)), 'trave');
-        assert.equal(cobranca(0, 5, seq(0.01, 0.7)), 'fora');
+    it('no ângulo, pulando no lado certo mas baixo, o goleiro não alcança', () => {
+        assert.equal(resultadoCobranca({ u: 0.04, v: 0.06 }, { u: 0.2, v: 0.8 }, FORCA_BOA), 'gol');
     });
-    it('aproveitamento fica perto do real (~70-80%)', () => {
+    it('trave, travessão e fora', () => {
+        assert.equal(resultadoCobranca({ u: 0.01, v: 0.5 }, { u: 0.8, v: 0.5 }, FORCA_BOA), 'trave');
+        assert.equal(resultadoCobranca({ u: 0.5, v: 0.01 }, { u: 0.2, v: 0.5 }, FORCA_BOA), 'trave');
+        assert.equal(resultadoCobranca({ u: 1.1, v: 0.5 }, { u: 0.2, v: 0.5 }, FORCA_BOA), 'fora');
+        assert.equal(resultadoCobranca({ u: 0.5, v: -0.2 }, { u: 0.2, v: 0.5 }, FORCA_BOA), 'fora');
+    });
+    it('bola fraca dá mais alcance ao goleiro', () => {
+        const bola = { u: 0.37, v: 0.6 };
+        const pulo = { u: 0.2, v: 0.6 };
+        assert.equal(resultadoCobranca(bola, pulo, FORCA_BOA), 'gol');
+        assert.equal(resultadoCobranca(bola, pulo, 0.1), 'defesa');
+    });
+    it('aproveitamento do computador fica perto do real (65-80%)', () => {
         let gols = 0;
         const n = 20000;
-        for (let i = 0; i < n; i++) if (cobranca(chuteCpu(), puloCpu()) === 'gol') gols++;
+        for (let i = 0; i < n; i++) {
+            const { mira, forca } = chuteCpu();
+            if (resultadoCobranca(trajetoria(mira, forca), puloCpu(), forca) === 'gol') gols++;
+        }
         const taxa = gols / n;
-        assert.ok(taxa > 0.65 && taxa < 0.85, `taxa ${taxa}`);
-    });
-    it('sortearZona respeita os pesos', () => {
-        assert.equal(
-            sortearZona([0, 0, 1], () => 0.5),
-            2,
-        );
-        assert.equal(
-            sortearZona([1, 0, 0], () => 0.99),
-            0,
-        );
+        assert.ok(taxa > 0.65 && taxa < 0.8, `taxa ${taxa}`);
     });
 });
 
