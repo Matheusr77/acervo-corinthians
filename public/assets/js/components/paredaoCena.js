@@ -14,6 +14,7 @@ import {
     desenharEstadio,
     desenharPlacas,
     membro,
+    pintarPadrao,
     semente,
     volume,
 } from './penaltisCena.js';
@@ -51,12 +52,12 @@ const BORDA = {
    CENÁRIO FIXO
    ================================================================= */
 
-function desenharCampo(ctx) {
+function desenharCampo(ctx, zoeira) {
     // Arquibancada: reaproveita o estádio dos pênaltis, subindo a imagem
     const estadio = document.createElement('canvas');
     estadio.width = W;
     estadio.height = 260;
-    desenharEstadio(/** @type {CanvasRenderingContext2D} */ (estadio.getContext('2d')));
+    desenharEstadio(/** @type {CanvasRenderingContext2D} */ (estadio.getContext('2d')), { zoeira });
     ctx.fillStyle = '#060608';
     ctx.fillRect(0, 0, W, H);
     ctx.drawImage(estadio, 0, 0, W, 238, 0, -98, W, 238);
@@ -238,6 +239,12 @@ function desenharJogador(ctx, kit, o) {
     ctx.lineTo(-12, quadril - 4);
     ctx.closePath();
     ctx.fill();
+    if (kit.padrao) {
+        ctx.save();
+        ctx.clip();
+        pintarPadrao(ctx, kit, -16, quadril - 35, 32, 31);
+        ctx.restore();
+    }
     if (kit.faixa) {
         ctx.save();
         ctx.clip();
@@ -367,14 +374,14 @@ function desenharLuva(ctx, x, y, lado, giro, detalhe) {
 
 /**
  * @param {HTMLCanvasElement} canvas
- * @param {{ aoChutar?: () => void, aoApitar?: () => void }} [eventos]
+ * @param {{ aoChutar?: () => void, aoApitar?: () => void, zoeira?: boolean }} [eventos]
  */
 export function criarCenaParedao(canvas, eventos = {}) {
     const ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext('2d'));
     const fundo = document.createElement('canvas');
     fundo.width = W;
     fundo.height = H;
-    desenharCampo(/** @type {CanvasRenderingContext2D} */ (fundo.getContext('2d')));
+    desenharCampo(/** @type {CanvasRenderingContext2D} */ (fundo.getContext('2d')), !!eventos.zoeira);
     const moldura = document.createElement('canvas');
     moldura.width = W;
     moldura.height = H;

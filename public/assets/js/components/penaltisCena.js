@@ -44,7 +44,7 @@ export function semente(s) {
    CENÁRIO FIXO (desenhado uma vez numa tela fora da página)
    ================================================================= */
 
-export function desenharEstadio(ctx) {
+export function desenharEstadio(ctx, { zoeira = false } = {}) {
     const rnd = semente(1910);
 
     // Céu noturno e cobertura
@@ -102,15 +102,17 @@ export function desenharEstadio(ctx) {
 
     // Faixa da torcida
     ctx.fillStyle = '#0b0b0b';
-    ctx.fillRect(24, 200, 150, 24);
+    ctx.fillRect(8, 200, 132, 24);
     ctx.strokeStyle = '#f2f2f2';
     ctx.lineWidth = 1.5;
-    ctx.strokeRect(24, 200, 150, 24);
+    ctx.strokeRect(8, 200, 132, 24);
     ctx.fillStyle = '#f2f2f2';
-    ctx.font = '900 13px Poppins, Arial, sans-serif';
+    ctx.font = '900 12px Poppins, Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('VAI CORINTHIANS', 99, 213);
+    ctx.fillText('VAI CORINTHIANS', 74, 213);
+
+    if (zoeira) desenharZoeira(ctx);
 
     // Refletores
     for (const x of [70, 730]) {
@@ -177,6 +179,215 @@ function desenharGramado(ctx) {
     v.addColorStop(1, 'rgba(0,0,0,.45)');
     ctx.fillStyle = v;
     ctx.fillRect(0, 258, W, H - 258);
+}
+
+/* =================================================================
+   ZOAÇÃO NO DERBY (só contra o Palmeiras)
+   ================================================================= */
+
+/** Cara de porco (desenho próprio). */
+export function desenharPorco(ctx, x, y, r, { chorando = false, lingua = false } = {}) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.lineWidth = Math.max(0.8, r * 0.08);
+    ctx.strokeStyle = '#a8506a';
+    // Orelhas
+    ctx.fillStyle = '#f19ab2';
+    for (const lado of [-1, 1]) {
+        ctx.beginPath();
+        ctx.moveTo(lado * r * 0.45, -r * 0.75);
+        ctx.lineTo(lado * r * 1.05, -r * 1.15);
+        ctx.lineTo(lado * r * 0.95, -r * 0.35);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+    }
+    // Cabeça
+    ctx.fillStyle = '#f7b3c5';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r, r * 0.92, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    // Focinho
+    ctx.fillStyle = '#ee8fa8';
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.3, r * 0.42, r * 0.3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#8c3550';
+    for (const lado of [-1, 1]) {
+        ctx.beginPath();
+        ctx.ellipse(lado * r * 0.15, r * 0.3, r * 0.07, r * 0.12, 0, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    // Olhos
+    ctx.strokeStyle = '#3a1a24';
+    ctx.lineWidth = Math.max(0.8, r * 0.09);
+    ctx.lineCap = 'round';
+    for (const lado of [-1, 1]) {
+        ctx.beginPath();
+        if (chorando) ctx.arc(lado * r * 0.38, -r * 0.18, r * 0.16, Math.PI * 1.1, Math.PI * 1.9);
+        else ctx.arc(lado * r * 0.38, -r * 0.2, r * 0.08, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+    if (chorando) {
+        ctx.fillStyle = '#59b7ff';
+        for (const lado of [-1, 1]) {
+            ctx.beginPath();
+            ctx.moveTo(lado * r * 0.42, -r * 0.05);
+            ctx.quadraticCurveTo(lado * r * 0.58, r * 0.25, lado * r * 0.45, r * 0.32);
+            ctx.quadraticCurveTo(lado * r * 0.3, r * 0.25, lado * r * 0.42, -r * 0.05);
+            ctx.fill();
+        }
+    }
+    if (lingua) {
+        ctx.fillStyle = '#d9466c';
+        ctx.beginPath();
+        ctx.ellipse(r * 0.1, r * 0.7, r * 0.16, r * 0.12, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.restore();
+}
+
+/** Faixa de torcida com texto. */
+function faixa(ctx, x, y, w, h, texto, { fundo, cor, borda, estrelas = 0, giro = 0 }) {
+    ctx.save();
+    ctx.translate(x + w / 2, y + h / 2);
+    ctx.rotate(giro);
+    ctx.fillStyle = fundo;
+    ctx.fillRect(-w / 2, -h / 2, w, h);
+    ctx.strokeStyle = borda;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(-w / 2, -h / 2, w, h);
+    ctx.fillStyle = cor;
+    ctx.font = `900 ${Math.round(h * 0.6)}px Poppins, Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(texto, estrelas ? -h * 0.4 : 0, 1);
+    if (estrelas) {
+        ctx.fillStyle = '#d4af37';
+        ctx.font = `900 ${Math.round(h * 0.55)}px Arial, sans-serif`;
+        ctx.fillText('★★', w / 2 - h * 0.9, 1);
+    }
+    ctx.restore();
+}
+
+/** Bandeira "51 é pinga / Sem Mundial / Chora porco" (versão do acervo). */
+function bandeira51(ctx, x, y, w, h) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(-0.04);
+    // Mastro
+    ctx.fillStyle = '#5a4a3a';
+    ctx.fillRect(-3, -6, 3, h + 30);
+    // Pano
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#111';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(0, 0, w, h, 6);
+    ctx.fill();
+    ctx.stroke();
+    ctx.save();
+    ctx.clip();
+    // Faixa vermelha em onda
+    ctx.beginPath();
+    ctx.moveTo(0, h * 0.62);
+    ctx.bezierCurveTo(w * 0.35, h * 0.38, w * 0.65, h * 0.62, w, h * 0.3);
+    ctx.lineTo(w, h * 0.55);
+    ctx.bezierCurveTo(w * 0.65, h * 0.86, w * 0.35, h * 0.62, 0, h * 0.86);
+    ctx.closePath();
+    ctx.fillStyle = '#c8102e';
+    ctx.fill();
+    ctx.strokeStyle = '#d4af37';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.restore();
+    // Selo do meio
+    ctx.fillStyle = '#121212';
+    ctx.beginPath();
+    ctx.arc(w * 0.5, h * 0.55, h * 0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#d4af37';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `900 ${Math.round(h * 0.2)}px Georgia, serif`;
+    ctx.fillText('51', w * 0.5, h * 0.56);
+    // Textos
+    ctx.fillStyle = '#111';
+    ctx.font = `900 ${Math.round(h * 0.17)}px Poppins, Arial, sans-serif`;
+    ctx.fillText('51 É PINGA', w * 0.5, h * 0.15);
+    ctx.fillText('SEM MUNDIAL', w * 0.5, h * 0.9);
+    ctx.font = `900 ${Math.round(h * 0.1)}px Poppins, Arial, sans-serif`;
+    ctx.fillText('CHORA', w * 0.83, h * 0.5);
+    ctx.fillText('PORCO', w * 0.83, h * 0.62);
+    desenharPorco(ctx, w * 0.17, h * 0.5, h * 0.15, { chorando: true });
+    ctx.restore();
+}
+
+/** Faixas e bandeira na arquibancada. */
+function desenharZoeira(ctx) {
+    faixa(ctx, 250, 169, 136, 19, 'NUNCA SERÃO', { fundo: '#0b0b0b', cor: '#f2f2f2', borda: '#f2f2f2', giro: -0.02 });
+    faixa(ctx, 462, 169, 140, 19, 'BI MUNDIAL', {
+        fundo: '#f2f2f2',
+        cor: '#0b0b0b',
+        borda: '#0b0b0b',
+        estrelas: 2,
+        giro: 0.02,
+    });
+    bandeira51(ctx, 648, 164, 124, 70);
+}
+
+/**
+ * Easter egg: torcedor na frente, à esquerda, levantando uma cabeça de porco.
+ * @param {number} t - tempo em ms
+ * @param {boolean} festa - comemoração (sacode mais)
+ */
+export function desenharTorcedorPorco(ctx, t, festa) {
+    const sobe = festa ? Math.abs(Math.sin(t / 110)) * 7 : (Math.sin(t / 420) + 1) * 2.5;
+    ctx.save();
+    ctx.translate(156, 240);
+    ctx.scale(1.35, 1.35);
+    ctx.lineCap = 'round';
+    // Corpo: camisa branca do Timão, com gola preta
+    ctx.fillStyle = '#f2f2f2';
+    ctx.beginPath();
+    ctx.roundRect(-10, -30, 20, 32, 5);
+    ctx.fill();
+    ctx.fillStyle = '#111';
+    ctx.beginPath();
+    ctx.ellipse(0, -29.5, 4, 1.8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Cabeça (de frente, gritando)
+    ctx.fillStyle = PELE;
+    ctx.beginPath();
+    ctx.arc(0, -36, 6.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = CABELO;
+    ctx.beginPath();
+    ctx.arc(0, -38.5, 6.5, Math.PI, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(-3, -37.5, 1.5, 1.5);
+    ctx.fillRect(1.5, -37.5, 1.5, 1.5);
+    ctx.fillStyle = '#5a1f1f';
+    ctx.beginPath();
+    ctx.ellipse(0, -33, 1.8, 1.4 + (festa ? 0.8 : 0), 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Braços para cima segurando a cabeça de porco
+    const maoY = -58 - sobe;
+    for (const lado of [-1, 1]) {
+        membro(ctx, lado * 9, -27, lado * 8, maoY + 4, 5, '#f2f2f2');
+        ctx.fillStyle = PELE;
+        ctx.beginPath();
+        ctx.arc(lado * 8, maoY + 3, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    desenharPorco(ctx, 0, maoY - 7, 11, { lingua: true });
+    ctx.restore();
 }
 
 /* =================================================================
@@ -317,6 +528,35 @@ function desenharTraves(ctx) {
     ferro(GOL.x - e, GOL.y - e, e, GOL.h + e, true);
     ferro(GOL.x + GOL.w, GOL.y - e, e, GOL.h + e, true);
     ferro(GOL.x - e, GOL.y - e, GOL.w + 2 * e, e, false);
+}
+
+/**
+ * Pinta o padrão da camisa (listras verticais/horizontais ou faixa diagonal)
+ * dentro do recorte atual. `kit.padrao = { tipo: 'v' | 'h' | 'd', cores }`.
+ */
+export function pintarPadrao(ctx, kit, x0, y0, w, h, espelhar = false) {
+    const p = kit.padrao;
+    if (!p) return;
+    if (p.tipo === 'v') {
+        const n = 7;
+        for (let i = 0; i < n; i++) {
+            ctx.fillStyle = p.cores[i % p.cores.length];
+            ctx.fillRect(x0 + (i * w) / n, y0, w / n + 0.5, h);
+        }
+    } else if (p.tipo === 'h') {
+        const n = 7;
+        for (let i = 0; i < n; i++) {
+            ctx.fillStyle = p.cores[i % p.cores.length];
+            ctx.fillRect(x0, y0 + (i * h) / n, w, h / n + 0.5);
+        }
+    } else if (p.tipo === 'd') {
+        ctx.save();
+        ctx.translate(x0 + w / 2, y0 + h * 0.45);
+        ctx.rotate(espelhar ? 0.65 : -0.65);
+        ctx.fillStyle = p.cores[0];
+        ctx.fillRect(-w, -h * 0.11, 2 * w, h * 0.22);
+        ctx.restore();
+    }
 }
 
 /** Sombreado de volume: claro em cima/à esquerda, escuro embaixo/à direita. */
@@ -548,6 +788,12 @@ function desenharBatedor(ctx, kit, { x, y, passo, chute }) {
     ctx.quadraticCurveTo(0, quadril - 64, -14, quadril - 68);
     ctx.closePath();
     ctx.fill();
+    if (kit.padrao) {
+        ctx.save();
+        ctx.clip();
+        pintarPadrao(ctx, kit, -34, quadril - 68, 68, 60, true);
+        ctx.restore();
+    }
     if (kit.faixa) {
         ctx.save();
         ctx.clip();
@@ -578,6 +824,15 @@ function desenharBatedor(ctx, kit, { x, y, passo, chute }) {
     const temFaixa = kit.faixa ? 1 : 0;
     const numeroLongo = (kit.num ?? '9').length > 3;
     ctx.fillStyle = kit.numero ?? '#111';
+    // Em camisa listrada, contorno escuro para o número aparecer
+    const contornar = !!kit.padrao;
+    ctx.strokeStyle = 'rgba(0,0,0,.65)';
+    ctx.lineWidth = 3;
+    ctx.lineJoin = 'round';
+    const escrever = (texto, x, y) => {
+        if (contornar) ctx.strokeText(texto, x, y);
+        ctx.fillText(texto, x, y);
+    };
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     if (numeroLongo) {
@@ -592,16 +847,16 @@ function desenharBatedor(ctx, kit, { x, y, passo, chute }) {
             ctx.save();
             ctx.translate(0, centro + (i - (linhas.length - 1) / 2) * 15);
             ctx.scale(aperto, 1);
-            ctx.fillText(linha, 0, 0);
+            escrever(linha, 0, 0);
             ctx.restore();
         });
     } else {
         if (kit.nome) {
             ctx.font = '800 10px Poppins, Arial, sans-serif';
-            ctx.fillText(kit.nome, 0, quadril - 50 + temFaixa * 12);
+            escrever(kit.nome, 0, quadril - 50 + temFaixa * 12);
         }
         ctx.font = '900 30px Poppins, Arial, sans-serif';
-        ctx.fillText(kit.num ?? '9', 0, quadril - 28 + temFaixa * 6);
+        escrever(kit.num ?? '9', 0, quadril - 28 + temFaixa * 6);
     }
 
     // Pescoço e cabeça (de costas: quase só cabelo)
@@ -670,7 +925,7 @@ export function desenharBola(ctx, { x, y, r, giro, alfa = 1 }) {
 
 /**
  * @param {HTMLCanvasElement} canvas
- * @param {{ aoMirar: (p: Ponto) => void, aoChutar: (forca: number) => void, forcaNoTempo: (ms: number) => number, faixaIdeal: { min: number, max: number } }} opcoes
+ * @param {{ aoMirar: (p: Ponto) => void, aoChutar: (forca: number) => void, forcaNoTempo: (ms: number) => number, faixaIdeal: { min: number, max: number }, zoeira?: boolean }} opcoes
  */
 export function criarCena(canvas, opcoes) {
     const ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext('2d'));
@@ -680,7 +935,7 @@ export function criarCena(canvas, opcoes) {
     fixo.width = W;
     fixo.height = H;
     const fctx = /** @type {CanvasRenderingContext2D} */ (fixo.getContext('2d'));
-    desenharEstadio(fctx);
+    desenharEstadio(fctx, { zoeira: !!opcoes.zoeira });
     desenharGramado(fctx);
 
     /** @type {{ batedor: KitBatedor, goleiro: KitGoleiro }} */
@@ -832,6 +1087,13 @@ export function criarCena(canvas, opcoes) {
         const k = canvas.width / W;
         ctx.setTransform(k, 0, 0, canvas.height / H, 0, 0);
         ctx.drawImage(fixo, 0, 0, W, H);
+        // Easter egg do Derby: torcedor com a cabeça de porco (sacode na comemoração)
+        if (opcoes.zoeira)
+            desenharTorcedorPorco(
+                ctx,
+                agora,
+                flashes.some((f) => agora - f.t < 900 && agora >= f.t),
+            );
         desenharPlacas(ctx, agora);
 
         // Flashes da torcida comemorando

@@ -66,17 +66,36 @@ export function resultadoCobranca(bola, pulo, forca) {
     return du * du + dv * dv <= 1 ? 'defesa' : 'gol';
 }
 
-/** Batida do computador: escolhe um canto (às vezes o meio) e uma força. */
-export function chuteCpu(aleatorio = Math.random) {
+/**
+ * Batida do computador: escolhe um canto (às vezes o meio) e uma força.
+ * @param {() => number} [aleatorio]
+ * @param {number} [nivel] - 0 a 1 (fases finais do torneio): mais canto, menos erro de força
+ */
+export function chuteCpu(aleatorio = Math.random, nivel = 0) {
+    const canto = 0.84 + nivel * 0.1;
     const r = aleatorio();
-    const u = r < 0.42 ? 0.06 + aleatorio() * 0.22 : r < 0.84 ? 0.72 + aleatorio() * 0.22 : 0.38 + aleatorio() * 0.24;
+    const u =
+        r < canto / 2
+            ? 0.06 + aleatorio() * (0.22 - nivel * 0.06)
+            : r < canto
+              ? 0.72 + nivel * 0.06 + aleatorio() * (0.22 - nivel * 0.06)
+              : 0.38 + aleatorio() * 0.24;
     const v = 0.12 + aleatorio() * 0.8;
-    const forca = aleatorio() < 0.12 ? 0.8 + aleatorio() * 0.15 : 0.45 + aleatorio() * 0.33;
+    const forca = aleatorio() < 0.12 * (1 - nivel * 0.7) ? 0.8 + aleatorio() * 0.15 : 0.45 + aleatorio() * 0.33;
     return { mira: { u, v }, forca };
 }
 
-/** Pulo do goleiro do computador: escolhe um lado (às vezes fica no meio). */
-export function puloCpu(aleatorio = Math.random) {
+/**
+ * Pulo do goleiro do computador: escolhe um lado (às vezes fica no meio).
+ * Nas fases finais, às vezes "lê" o lado da sua mira.
+ * @param {() => number} [aleatorio]
+ * @param {number} [nivel]
+ * @param {Ponto | null} [mira]
+ */
+export function puloCpu(aleatorio = Math.random, nivel = 0, mira = null) {
+    if (mira && aleatorio() < nivel * 0.3) {
+        return { u: Math.min(0.88, Math.max(0.12, mira.u + (aleatorio() - 0.5) * 0.2)), v: 0.3 + aleatorio() * 0.5 };
+    }
     const r = aleatorio();
     const u = r < 0.45 ? 0.14 + aleatorio() * 0.2 : r < 0.9 ? 0.66 + aleatorio() * 0.2 : 0.5;
     return { u, v: 0.3 + aleatorio() * 0.5 };

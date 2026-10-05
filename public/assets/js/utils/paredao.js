@@ -215,9 +215,17 @@ export function criarLance(tipo, dificuldade, rnd = Math.random) {
 }
 
 /** Sequência da partida (10 lances, do mais fácil ao mais difícil). */
-export function montarPartida(rnd = Math.random) {
+export function montarPartida(rnd = Math.random, nivel = 0) {
     const tipos = ['longe', 'penalti', 'cabeca', 'falta', 'cara', 'longe', 'cabeca', 'falta', 'cara', 'penalti'];
-    return tipos.map((tipo, i) => criarLance(/** @type {TipoLance} */ (tipo), i / (tipos.length - 1), rnd));
+    return tipos.map((tipo, i) =>
+        criarLance(/** @type {TipoLance} */ (tipo), Math.min(1, (i / (tipos.length - 1)) * 0.85 + nivel * 0.3), rnd),
+    );
+}
+
+/** Lance extra da prorrogação (empate no torneio): sorteia um tipo difícil. */
+export function lanceExtra(rnd = Math.random, nivel = 0) {
+    const tipos = /** @type {TipoLance[]} */ (['penalti', 'cara', 'falta', 'longe', 'cabeca']);
+    return criarLance(tipos[Math.floor(rnd() * tipos.length)], 0.7 + nivel * 0.3, rnd);
 }
 
 /* ------------------------------------------------------------------ */

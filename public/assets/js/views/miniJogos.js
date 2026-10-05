@@ -11,10 +11,10 @@ const JOGOS = [
     {
         href: '/penaltis',
         titulo: 'Disputa de Pênaltis',
-        resumo: 'Mire, acerte a força e escolha o canto do goleiro. Cinco cobranças para cada lado e, se empatar, morte súbita.',
+        resumo: 'Mire, acerte a força e escolha o canto do goleiro. Jogue um clássico ou encare um mata-mata até a taça.',
         imagem: '/assets/img/minijogos/penaltis.jpg',
         chave: 'acervo:penaltis',
-        etiquetas: ['Batedor e goleiro', '~3 min'],
+        etiquetas: ['Rápido ou torneio', 'Batedor e goleiro'],
     },
     {
         href: '/paredao',
@@ -22,7 +22,7 @@ const JOGOS = [
         resumo: 'Você é o goleiro e controla só as luvas. Chute de longe, falta, cabeçada, cara a cara… pare tudo.',
         imagem: '/assets/img/minijogos/paredao.jpg',
         chave: 'acervo:paredao',
-        etiquetas: ['Reflexo', '10 lances'],
+        etiquetas: ['Rápido ou torneio', 'Reflexo'],
         novo: true,
     },
 ];

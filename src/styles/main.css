@@ -308,3 +308,106 @@
 .penaltis-aviso[data-tipo='ruim'] {
     color: #f87171;
 }
+
+/* ----------------------------------------------
+   MINI JOGOS EM TELA CHEIA
+   .jogo-ampliado vale para a tela cheia do navegador e para o modo
+   ampliado (iPhone, onde a tela cheia não existe para páginas).
+---------------------------------------------- */
+.jogo-barra {
+    display: none;
+}
+.jogo-ampliado {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    background: rgb(var(--cinza-950));
+}
+.jogo-ampliado > .jogo-barra {
+    display: flex;
+    justify-content: flex-end;
+}
+.jogo-ampliado > div:last-child {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+.jogo-ampliado .jogo-tela {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+.jogo-ampliado .jogo-tela > * + * {
+    margin-top: 6px;
+}
+.jogo-ampliado .penaltis-palco {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    box-shadow: none;
+}
+.jogo-ampliado .penaltis-canvas,
+.jogo-ampliado .paredao-canvas {
+    margin-left: 0;
+    border-radius: 0.75rem;
+}
+/* Durante o jogo, o botão de sair já fica ao lado do som */
+.jogo-ampliado:has(.jogo-tela) > .jogo-barra {
+    display: none;
+}
+/* Tela cheia deitada no celular: placar ao lado do campo */
+@media (max-height: 520px) and (min-width: 600px) {
+    .jogo-ampliado .jogo-tela {
+        display: grid;
+        grid-template-columns: minmax(230px, 32%) 1fr;
+        grid-template-rows: auto 1fr;
+        align-items: start;
+        gap: 8px 12px;
+    }
+    .jogo-ampliado .jogo-tela > * + * {
+        margin-top: 0;
+    }
+    .jogo-ampliado .jogo-tela > :nth-child(1) {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    .jogo-ampliado .jogo-tela > :nth-child(2) {
+        grid-column: 1;
+        grid-row: 2;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .jogo-ampliado .jogo-tela > .penaltis-palco {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        height: 100%;
+    }
+    .jogo-ampliado #paredao-placar .text-3xl {
+        font-size: 1.5rem;
+        white-space: nowrap;
+    }
+    .jogo-ampliado #paredao-placar .font-bold.text-white {
+        font-size: 0.85rem;
+    }
+}
+/* Tela cheia em tela baixa: placar compacto */
+@media (max-height: 520px) {
+    .jogo-ampliado #penaltis-placar > div,
+    .jogo-ampliado #paredao-placar > div {
+        padding: 6px 10px;
+    }
+    .jogo-ampliado #penaltis-placar .space-y-2 > * + *,
+    .jogo-ampliado #paredao-placar .space-y-3 > * + * {
+        margin-top: 2px;
+    }
+}
