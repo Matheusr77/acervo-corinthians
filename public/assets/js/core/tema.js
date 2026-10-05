@@ -1,5 +1,5 @@
 /**
- * Tema do site: "Uniforme 1" (escuro, padrão) e "Uniforme 2" (claro).
+ * Tema do site: "Uniforme 2" (claro, padrão) e "Uniforme 1" (escuro).
  * A escolha fica no navegador (localStorage) e é aplicada cedo pelo tema-inicial.js.
  */
 

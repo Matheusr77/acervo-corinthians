@@ -57,7 +57,10 @@ function cardJogo(j) {
                     loading="lazy"
                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
+                <div
+                    class="absolute inset-0"
+                    style="background: linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,.25) 45%, transparent)"
+                ></div>
                 ${
                     j.novo
                         ? html`<span
@@ -75,7 +78,8 @@ function cardJogo(j) {
                         : ''
                 }
                 <h2
-                    class="absolute bottom-3 left-4 right-4 text-3xl md:text-4xl font-display font-black text-white leading-none drop-shadow-lg"
+                    class="absolute bottom-3 left-4 right-4 text-3xl md:text-4xl font-display font-black leading-none drop-shadow-lg"
+                    style="color: #fff"
                 >
                     ${j.titulo}
                 </h2>
