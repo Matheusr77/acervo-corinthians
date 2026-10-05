@@ -58,6 +58,14 @@ const ESTATICAS = {
     '/mapa': ok('O Timão pelo mapa', 'Todas as cidades e países onde o Corinthians já jogou, num mapa interativo.'),
     '/estadios': ok('Estádios', 'O retrospecto do Corinthians em cada estádio da sua história.'),
     '/quiz': ok('Quiz do Timão', 'Cinco perguntas por dia sobre a história do Corinthians. Quanto você sabe?'),
+    '/mini-jogos': ok(
+        'Mini Jogos',
+        'Disputa de Pênaltis, Paredão e mais: jogue pelo Timão contra Palmeiras, São Paulo e Santos.',
+    ),
+    '/paredao': ok(
+        'Paredão',
+        'Você é o goleiro do Corinthians: mexa as luvas e defenda chutes, faltas, cabeçadas e pênaltis dos rivais.',
+    ),
     '/penaltis': ok(
         'Disputa de Pênaltis',
         'Bata e defenda pênaltis contra Palmeiras, São Paulo e Santos. O Timão leva a melhor?',

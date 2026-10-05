@@ -13,6 +13,14 @@
 import { html } from '../core/html.js';
 import { botaoCompartilhar, ligarCompartilhar } from '../components/compartilhar.js';
 import { pageHeader } from '../components/layout.js';
+import {
+    RIVAIS,
+    TIMAO,
+    escolhaDeRival,
+    resolverRival,
+    somarRetrospecto,
+    textoRetrospecto,
+} from '../components/miniJogos.js';
 import { criarCena } from '../components/penaltisCena.js';
 import {
     FORCA_IDEAL,
@@ -26,105 +34,14 @@ import {
 } from '../utils/penaltis.js';
 import { criarSom } from '../utils/penaltisSom.js';
 
-/** Uniformes (só cores; nada de escudos). */
-const TIMAO = {
-    batedor: { camisa: '#f4f4f4', numero: '#111111', calcao: '#111111', meiao: '#111111', nome: 'FIEL', num: '10' },
-    goleiro: { camisa: '#1f1f1f', detalhe: '#d4af37', calcao: '#111111', meiao: '#1f1f1f' },
-};
-const RIVAIS = {
-    palmeiras: {
-        nome: 'Palmeiras',
-        classico: 'Derby',
-        batedor: {
-            camisa: '#0f7a3c',
-            numero: '#ffffff',
-            calcao: '#f4f4f4',
-            meiao: '#0f7a3c',
-            nome: 'SEM',
-            num: 'MUNDIAL',
-        },
-        goleiro: { camisa: '#2a3f94', detalhe: '#ffffff', calcao: '#1b2a66', meiao: '#2a3f94' },
-    },
-    'sao-paulo': {
-        nome: 'São Paulo',
-        classico: 'Majestoso',
-        batedor: {
-            camisa: '#f5f5f5',
-            faixa: ['#d6001c', '#f5f5f5', '#111111'],
-            numero: '#111111',
-            calcao: '#f5f5f5',
-            meiao: '#f5f5f5',
-            num: '9',
-        },
-        goleiro: { camisa: '#e8661c', detalhe: '#111111', calcao: '#111111', meiao: '#e8661c' },
-    },
-    santos: {
-        nome: 'Santos',
-        classico: 'Clássico Alvinegro',
-        batedor: { camisa: '#f5f5f5', numero: '#111111', calcao: '#f5f5f5', meiao: '#f5f5f5', num: '9' },
-        goleiro: { camisa: '#5a36a6', detalhe: '#ffffff', calcao: '#2b1a55', meiao: '#5a36a6' },
-    },
-};
 const CHAVE_RETROSPECTO = 'acervo:penaltis';
-
-/* ---------- retrospecto (localStorage) ---------- */
-
-function lerRetrospecto() {
-    try {
-        return JSON.parse(localStorage.getItem(CHAVE_RETROSPECTO) ?? '{}') ?? {};
-    } catch {
-        return {};
-    }
-}
-
-function somarRetrospecto(rival, venceu) {
-    const r = lerRetrospecto();
-    const atual = r[rival] ?? { v: 0, d: 0 };
-    r[rival] = { v: atual.v + (venceu ? 1 : 0), d: atual.d + (venceu ? 0 : 1) };
-    try {
-        localStorage.setItem(CHAVE_RETROSPECTO, JSON.stringify(r));
-    } catch {
-        /* sem armazenamento: só não lembra depois */
-    }
-    return r[rival];
-}
-
-const textoRetrospecto = (r) =>
-    r ? `${r.v} ${r.v === 1 ? 'vitória' : 'vitórias'} e ${r.d} ${r.d === 1 ? 'derrota' : 'derrotas'}` : '';
 
 /* ---------- telas ---------- */
 
 function telaEscolha() {
-    const retro = lerRetrospecto();
     return html`
         <div class="space-y-5">
-            <p class="text-gray-300">Escolha o rival. O Timão bate primeiro.</p>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                ${Object.entries(RIVAIS).map(
-                    ([slug, r]) => html`
-                        <button
-                            type="button"
-                            data-rival="${slug}"
-                            class="group text-left bg-sccp-gray border border-gray-800 hover:border-sccp-gold rounded-xl p-5 transition"
-                        >
-                            <span
-                                class="block h-1.5 w-12 rounded-full mb-4"
-                                style="background: linear-gradient(90deg, ${r.batedor.camisa} 50%, ${
-                                    r.batedor.faixa?.[0] ?? r.batedor.calcao
-                                } 50%)"
-                            ></span>
-                            <span class="block text-xs font-bold uppercase tracking-[0.2em] text-sccp-gold"
-                                >${r.classico}</span
-                            >
-                            <span class="block text-2xl font-display font-bold text-white mt-1">${r.nome}</span>
-                            <span class="block text-sm text-gray-400 mt-2"
-                                >${retro[slug] ? `Você: ${textoRetrospecto(retro[slug])}` : 'Ainda não jogou'}</span
-                            >
-                        </button>
-                    `,
-                )}
-            </div>
-            <button type="button" data-rival="sortear" class="btn-ghost text-sm">🎲 Sortear o rival</button>
+            ${escolhaDeRival(CHAVE_RETROSPECTO, 'Escolha o rival. O Timão bate primeiro.')}
             <div class="bg-sccp-gray border border-gray-800 rounded-xl p-5 text-sm text-gray-400 space-y-2">
                 <p class="font-bold text-white">Como jogar</p>
                 <p>
@@ -238,6 +155,7 @@ export default {
             title: 'Disputa de Pênaltis',
             content: html`
                 <div class="max-w-3xl mx-auto space-y-8">
+                    <a href="/mini-jogos" class="btn-ghost text-sm">← Mini Jogos</a>
                     ${pageHeader(
                         'Disputa de Pênaltis',
                         'Bata e defenda contra os rivais. Mire, acerte a força e escolha o canto do goleiro.',
@@ -289,7 +207,7 @@ export default {
         }
 
         function novaPartida(slug) {
-            rival = slug === 'sortear' ? Object.keys(RIVAIS)[Math.floor(Math.random() * 3)] : slug;
+            rival = resolverRival(slug);
             nossos = [];
             deles = [];
             partida++;
@@ -359,7 +277,7 @@ export default {
 
         function terminar() {
             const ganhou = vencedor(nossos, deles) === 'corinthians';
-            const retro = somarRetrospecto(rival, ganhou);
+            const retro = somarRetrospecto(CHAVE_RETROSPECTO, rival, ganhou);
             desligarCena();
             app.innerHTML = String(
                 html`${placar(rival, nossos, deles)}

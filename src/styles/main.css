@@ -268,6 +268,15 @@
         margin-left: -20%;
     }
 }
+.paredao-canvas {
+    display: block;
+    width: 100%;
+    aspect-ratio: 800 / 500;
+    cursor: none;
+    touch-action: none; /* arrastar o dedo mexe as luvas, não a página */
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
 .penaltis-aviso {
     position: absolute;
     inset: 0 0 30% 0;

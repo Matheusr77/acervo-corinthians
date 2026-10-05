@@ -22,8 +22,8 @@ const FUNDO = { x0: 209, x1: 591, topo: 236, base: 340.6 }; // fundo da rede
 const LINHA_GOL = GOL.y + GOL.h; // 345
 const MARCA = { x: 400, y: 503 };
 const BOLA_R = 12;
-const PELE = '#b07a52';
-const CABELO = '#1b1410';
+export const PELE = '#b07a52';
+export const CABELO = '#1b1410';
 
 const gx = (u) => GOL.x + u * GOL.w;
 const gy = (v) => GOL.y + v * GOL.h;
@@ -33,7 +33,7 @@ const suave = (t) => 1 - Math.pow(1 - limitar(t, 0, 1), 3); // ease-out
 const vaiVolta = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2); // ease-in-out
 
 /** Gerador pseudoaleatório com semente (a torcida sai sempre igual). */
-function semente(s) {
+export function semente(s) {
     return () => {
         s = (s * 1664525 + 1013904223) % 4294967296;
         return s / 4294967296;
@@ -44,7 +44,7 @@ function semente(s) {
    CENÁRIO FIXO (desenhado uma vez numa tela fora da página)
    ================================================================= */
 
-function desenharEstadio(ctx) {
+export function desenharEstadio(ctx) {
     const rnd = semente(1910);
 
     // Céu noturno e cobertura
@@ -183,7 +183,7 @@ function desenharGramado(ctx) {
    PEÇAS QUE SE MEXEM
    ================================================================= */
 
-function desenharPlacas(ctx, t) {
+export function desenharPlacas(ctx, t) {
     ctx.fillStyle = '#060606';
     ctx.fillRect(0, 238, W, 21);
     ctx.fillStyle = '#1d1d1d';
@@ -320,7 +320,7 @@ function desenharTraves(ctx) {
 }
 
 /** Sombreado de volume: claro em cima/à esquerda, escuro embaixo/à direita. */
-function volume(ctx, x0, y0, x1, y1, forca = 0.22) {
+export function volume(ctx, x0, y0, x1, y1, forca = 0.22) {
     const g = ctx.createLinearGradient(x0, y0, x1, y1);
     g.addColorStop(0, `rgba(255,255,255,${forca * 0.6})`);
     g.addColorStop(0.45, 'rgba(255,255,255,0)');
@@ -329,7 +329,7 @@ function volume(ctx, x0, y0, x1, y1, forca = 0.22) {
 }
 
 /** Membro arredondado (segmento grosso com pontas redondas). */
-function membro(ctx, x0, y0, x1, y1, largura, cor) {
+export function membro(ctx, x0, y0, x1, y1, largura, cor) {
     ctx.strokeStyle = cor;
     ctx.lineWidth = largura;
     ctx.lineCap = 'round';
@@ -340,7 +340,7 @@ function membro(ctx, x0, y0, x1, y1, largura, cor) {
 }
 
 /** Chuteira vista de trás/de frente: corpo escuro com sola e travas. */
-function chuteira(ctx, x, y, escala = 1, cor = '#111') {
+export function chuteira(ctx, x, y, escala = 1, cor = '#111') {
     ctx.save();
     ctx.translate(x, y);
     ctx.scale(escala, escala);
@@ -631,7 +631,7 @@ function desenharBatedor(ctx, kit, { x, y, passo, chute }) {
     ctx.restore();
 }
 
-function desenharBola(ctx, { x, y, r, giro, alfa = 1 }) {
+export function desenharBola(ctx, { x, y, r, giro, alfa = 1 }) {
     ctx.save();
     ctx.globalAlpha = alfa;
     ctx.translate(x, y);
