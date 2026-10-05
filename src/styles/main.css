@@ -365,49 +365,140 @@
 .jogo-ampliado:has(.jogo-tela) > .jogo-barra {
     display: none;
 }
-/* Tela cheia deitada no celular: placar ao lado do campo */
-@media (max-height: 520px) and (min-width: 600px) {
+/* Tela cheia deitada no celular: placar numa faixa fina no topo */
+@media (max-height: 520px) {
+    .jogo-ampliado {
+        padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+        gap: 4px;
+    }
     .jogo-ampliado .jogo-tela {
         display: grid;
-        grid-template-columns: minmax(230px, 32%) 1fr;
+        grid-template-columns: auto 1fr;
         grid-template-rows: auto 1fr;
-        align-items: start;
-        gap: 8px 12px;
+        align-items: center;
+        gap: 4px 12px;
     }
     .jogo-ampliado .jogo-tela > * + * {
         margin-top: 0;
     }
-    .jogo-ampliado .jogo-tela > :nth-child(1) {
-        grid-column: 1;
-        grid-row: 1;
-    }
-    .jogo-ampliado .jogo-tela > :nth-child(2) {
-        grid-column: 1;
-        grid-row: 2;
-        flex-direction: column;
-        align-items: flex-start;
-    }
     .jogo-ampliado .jogo-tela > .penaltis-palco {
-        grid-column: 2;
-        grid-row: 1 / span 2;
+        grid-column: 1 / span 2;
+        grid-row: 2;
         height: 100%;
     }
-    .jogo-ampliado #paredao-placar .text-3xl {
-        font-size: 1.5rem;
-        white-space: nowrap;
-    }
-    .jogo-ampliado #paredao-placar .font-bold.text-white {
-        font-size: 0.85rem;
-    }
-}
-/* Tela cheia em tela baixa: placar compacto */
-@media (max-height: 520px) {
+    /* Placar em uma linha */
     .jogo-ampliado #penaltis-placar > div,
     .jogo-ampliado #paredao-placar > div {
-        padding: 6px 10px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 3px 10px;
+        border-radius: 0.5rem;
     }
-    .jogo-ampliado #penaltis-placar .space-y-2 > * + *,
-    .jogo-ampliado #paredao-placar .space-y-3 > * + * {
-        margin-top: 2px;
+    .jogo-ampliado #penaltis-placar > div > *,
+    .jogo-ampliado #paredao-placar > div > * {
+        margin-top: 0 !important;
+        flex-wrap: nowrap;
+        gap: 6px;
+        white-space: nowrap;
+    }
+    .jogo-ampliado #penaltis-placar .w-24,
+    .jogo-ampliado #penaltis-placar .sm\:w-32 {
+        width: auto;
+        font-size: 0.8rem;
+    }
+    .jogo-ampliado #penaltis-placar .flex-1 {
+        flex: none;
+    }
+    .jogo-ampliado #penaltis-placar .w-3\.5,
+    .jogo-ampliado #paredao-placar .w-3\.5 {
+        width: 0.55rem;
+        height: 0.55rem;
+    }
+    .jogo-ampliado #penaltis-placar .text-2xl,
+    .jogo-ampliado #paredao-placar .text-3xl {
+        font-size: 1.1rem;
+        line-height: 1;
+        width: auto;
+    }
+    .jogo-ampliado #paredao-placar .font-bold.text-white {
+        font-size: 0.8rem;
+    }
+    .jogo-ampliado #penaltis-placar p,
+    .jogo-ampliado #paredao-placar p {
+        font-size: 10px;
+    }
+    .jogo-ampliado #penaltis-placar .flex-wrap,
+    .jogo-ampliado #paredao-placar .flex-wrap {
+        flex-wrap: nowrap;
+    }
+    /* O tipo de lance já aparece na instrução */
+    .jogo-ampliado #paredao-placar .sm\:inline {
+        display: none;
+    }
+    /* Instrução e botões na mesma linha do placar */
+    .jogo-ampliado .jogo-tela > :nth-child(2) > p {
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .jogo-ampliado .jogo-tela > :nth-child(2) {
+        min-height: 0;
+        min-width: 0;
+        flex-wrap: nowrap;
+        font-size: 0.8rem;
+    }
+    .jogo-ampliado .jogo-tela > :nth-child(2) .btn-ghost {
+        padding: 2px 6px;
+        font-size: 0.75rem;
+    }
+}
+
+/* Camada "Pronto?" antes do primeiro lance */
+.jogo-pronto {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.62);
+    backdrop-filter: blur(3px);
+}
+/* A dica de girar só aparece no celular em pé */
+.jogo-pronto-dica {
+    display: none;
+}
+@media (max-width: 640px) and (orientation: portrait) {
+    .jogo-pronto-dica {
+        display: block;
+    }
+}
+.jogo-ampliado .jogo-pronto [data-acao='tela-cheia'] {
+    display: none;
+}
+
+/* Celular em pé: jogo de ponta a ponta da tela e Paredão um pouco mais perto */
+@media (max-width: 640px) {
+    .penaltis-palco {
+        margin-left: -1rem;
+        margin-right: -1rem;
+        border-radius: 0;
+    }
+    .paredao-canvas {
+        width: 110%;
+        margin-left: -5%;
+    }
+    .jogo-ampliado .penaltis-palco {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    .jogo-ampliado .paredao-canvas {
+        margin-left: 0;
     }
 }

@@ -375,7 +375,7 @@ export function ligarTelaCheia(raiz) {
             }
             const palco = /** @type {HTMLElement} */ (canvas.parentElement);
             const aspecto = Number(canvas.dataset.aspecto) || 1.6;
-            const largura = Math.min(palco.clientWidth, palco.clientHeight * aspecto);
+            const largura = Math.min(palco.clientWidth, (palco.clientHeight - 4) * aspecto);
             canvas.style.width = `${Math.floor(largura)}px`;
         }
         for (const b of raiz.querySelectorAll('[data-acao="tela-cheia"]')) {
@@ -529,4 +529,43 @@ export function textoTorneio(t, nomeJogo, ultimoTexto) {
     const q = faseDaEliminacao(t);
     const fase = q ? nomeFase(t, q.rodada) : '';
     return `Caí ${naFase(fase)} do Torneio de ${nomeJogo} 😤\n${ultimoTexto}\nMe ajuda na revanche?\n`;
+}
+
+/* ---------- "Pronto?" antes de começar ---------- */
+
+/**
+ * Camada por cima do jogo que espera o toque em "Começar" (dá tempo de
+ * virar o celular e ligar a tela cheia).
+ * @param {string} titulo
+ * @param {string} texto
+ */
+export function telaPronto(titulo, texto) {
+    return html`
+        <div class="jogo-pronto" data-pronto>
+            <p class="text-2xl md:text-4xl font-display font-black text-white">${titulo}</p>
+            <p class="text-sm md:text-base text-gray-300 max-w-sm">${texto}</p>
+            <div class="flex flex-wrap justify-center gap-3">
+                <button type="button" data-acao="comecar" class="btn-primary text-base px-8">▶ Começar</button>
+                <button type="button" data-acao="tela-cheia" class="btn-secondary">⛶ Tela cheia</button>
+            </div>
+            <p class="jogo-pronto-dica text-xs text-gray-300">📱 Dica: gire o celular e jogue em tela cheia.</p>
+        </div>
+    `;
+}
+
+/**
+ * Espera o toque em "Começar" e some com a camada.
+ * @param {HTMLElement} app
+ * @returns {Promise<void>}
+ */
+export function aguardarInicio(app) {
+    return new Promise((ok) => {
+        const aoClicar = (e) => {
+            if (!(/** @type {HTMLElement} */ (e.target).closest('[data-acao="comecar"]'))) return;
+            app.removeEventListener('click', aoClicar);
+            app.querySelector('[data-pronto]')?.remove();
+            ok();
+        };
+        app.addEventListener('click', aoClicar);
+    });
 }

@@ -17,12 +17,14 @@ import { pageHeader } from '../components/layout.js';
 import {
     TIMAO,
     TIMES,
+    aguardarInicio,
     escolhaDeRival,
     ligarTelaCheia,
     resolverRival,
     somarRetrospecto,
     somarTitulo,
     telaModo,
+    telaPronto,
     telaTorneio,
     textoRetrospecto,
     textoTorneio,
@@ -133,6 +135,7 @@ function telaJogo(somLigado) {
                     aria-label="Gol, goleiro e batedor. Toque no gol para jogar."
                 ></canvas>
                 <div class="penaltis-aviso" id="penaltis-aviso"></div>
+                ${telaPronto('Bora pra disputa!', 'O Timão bate primeiro. Mire no gol e acerte a força.')}
             </div>
         </div>
     `;
@@ -276,8 +279,14 @@ export default {
                     if (mira) cobrar({ mira, forca }, puloCpu(Math.random, dificuldade, mira));
                 },
             });
-            som.ambiente();
             prepararCobranca();
+            instrucao('Toque em Começar quando estiver pronto.');
+            const minha = partida;
+            aguardarInicio(app).then(() => {
+                if (minha !== partida) return;
+                som.ambiente();
+                prepararCobranca();
+            });
             if (!raiz.classList.contains('jogo-ampliado')) {
                 $('#penaltis-placar').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }

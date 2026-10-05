@@ -18,12 +18,14 @@ import { pageHeader } from '../components/layout.js';
 import {
     TIMAO,
     TIMES,
+    aguardarInicio,
     escolhaDeRival,
     ligarTelaCheia,
     resolverRival,
     somarRetrospecto,
     somarTitulo,
     telaModo,
+    telaPronto,
     telaTorneio,
     textoRetrospecto,
     textoTorneio,
@@ -146,6 +148,7 @@ function telaJogo(somLigado) {
                     aria-label="Visão de dentro do gol. Mova as luvas para defender."
                 ></canvas>
                 <div class="penaltis-aviso" id="paredao-aviso"></div>
+                ${telaPronto('Prepare as luvas!', 'Mexa o mouse ou arraste o dedo para controlar as luvas. São 10 lances.')}
             </div>
         </div>
     `;
@@ -325,15 +328,18 @@ export default {
                 zoeira: rival === 'palmeiras',
             });
             cena.trocarKits({ atacante: TIMES[rival].batedor, luva: TIMAO.goleiro.detalhe });
-            som.ambiente();
             if (!raiz.classList.contains('jogo-ampliado')) {
                 $('#paredao-placar')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
 
             const lances = montarPartida(Math.random, nivelDoJogo);
             atualizarPlacar(1, '');
+            instrucao('Toque em Começar quando estiver pronto.');
+            await aguardarInicio(app);
+            if (minha !== partida) return;
+            som.ambiente();
             instrucao('Posicione as luvas… o rival vem aí!');
-            await esperar(1600);
+            await esperar(1300);
 
             for (let i = 0; i < lances.length; i++) {
                 const h = await jogarLance(lances[i], i + 1, minha, i / (TOTAL - 1));
